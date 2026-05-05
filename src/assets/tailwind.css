@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --font-instrument: "Instrument Sans", sans-serif;
+  
+  /* Palette Teamify */
+  --color-bg-main: #F8FAFF;
+  --color-text-dark: #2D2D2D;
+  --color-text-muted: #94A3B8;
+  --color-primary: #7367F0; /* Indigo Utama */
+  --color-primary-light: #F0EEFF;
+  
+  /* Aksen Chart & Stats */
+  --color-accent-orange: #FF9F43;
+  --color-accent-cyan: #00CFE8;
+  --color-accent-red: #EA5455;
+}
+
+body {
+    @apply font-instrument bg-[var(--color-bg-main)] text-[var(--color-text-dark)] antialiased;
+}
