@@ -19,3 +19,4 @@
 body {
     @apply font-instrument bg-[var(--color-bg-main)] text-[var(--color-text-dark)] antialiased;
 }
+
