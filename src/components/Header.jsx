@@ -29,10 +29,14 @@ export default function Header({ userRole = "staff", userName = "User" }) {
                         <p className="text-xs font-bold text-white leading-none">{userName}</p>
                         <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mt-1">{userRole}</p>
                     </div>
-                    <img 
-                        src={userRole === "admin" ? "https://avatar.iran.liara.run/public/boy" : "https://avatar.iran.liara.run/public/girl"} 
-                        className="w-10 h-10 rounded-full border-2 border-[#333] shadow-sm transition-transform group-hover:scale-105" 
-                        alt="User Avatar" 
+                    <img
+                        src={userRole === "admin" ? "https://avatar.iran.liara.run/public/boy" : "https://avatar.iran.liara.run/public/girl"}
+                        className="w-10 h-10 rounded-full border-2 border-[#333] shadow-sm object-cover transition-transform group-hover:scale-105"
+                        alt="User Avatar"
+                        loading="lazy"
+                        onError={(e) => {
+                            e.currentTarget.src = "https://avatar.iran.liara.run/public/6";
+                        }}
                     />
                     <RiArrowDownSLine className="text-gray-500 group-hover:text-white" />
                 </div>

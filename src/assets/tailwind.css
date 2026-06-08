@@ -20,3 +20,12 @@
 body {
     @apply font-instrument bg-[var(--color-bg-main)] text-[var(--color-text-dark)] antialiased;
 }
+
+input[type="text"] {
+    color: #000 !important;
+    background-color: #fff !important;
+}
+
+input[type="text"]::placeholder {
+    color: #6b7280 !important;
+}
