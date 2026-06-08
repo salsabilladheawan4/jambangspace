@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
 import PageHeader from "../components/PageHeader";
 import { BsFillExclamationDiamondFill } from "react-icons/bs";
-import { useParams, useNavigate } from "react-router-dom"; // TAMBAHKAN useNavigate untuk klik detail
+import { useParams, useNavigate } from "react-router-dom";
 
-// DATA MENU ASLI CAFFE JAMBANG MARPOYAN (Sebagai pengganti DummyJSON agar sesuai tema kafe)
+// DATA MENU ASLI / NYATA CAFFE JAMBANG MARPOYAN PEKANBARU
 const DATA_MENU_JAMBANG = [
-    { id: 1, title: "Kopi Susu Gula Aren Jambang", category: "Kopi (Coffee)", price: 18000, brand: "Caffe Jambang Signature" },
-    { id: 2, title: "Matcha Latte Ice", category: "Non-Kopi (Non-Coffee)", price: 20000, brand: "Caffe Jambang" },
-    { id: 3, title: "Nasi Goreng Kampung Jambang", category: "Makanan Berat", price: 25000, brand: "Dapur Jambang Marpoyan" },
-    { id: 4, title: "Kentang Goreng Spesial / French Fries", category: "Cemilan (Snack)", price: 15000, brand: "Caffe Jambang Side Dish" },
-    { id: 5, title: "Mie Goreng Sumatra", category: "Makanan Berat", price: 18000, brand: "Dapur Jambang Marpoyan" }
+    { id: 1, title: "Kopi Susu Gula Aren Jambang", category: "Kopi (Coffee)", price: 18000 },
+    { id: 2, title: "Matcha Latte Ice", category: "Non-Kopi (Non-Coffee)", price: 20000 },
+    { id: 3, title: "Nasi Goreng Kampung Jambang", category: "Makanan Berat", price: 25000 },
+    { id: 4, title: "Kentang Goreng Spesial / French Fries", category: "Cemilan (Snack)", price: 15000 },
+    { id: 5, title: "Mie Goreng Sumatra", category: "Makanan Berat", price: 18000 }
 ];
 
 export default function Products() {
     const breadcrumb = ["Dashboard", "Product List"];
     const { id } = useParams();
-    const navigate = useNavigate(); // Ditambahkan agar tabel bisa diklik ke halaman detail
+    const navigate = useNavigate();
 
     const [products, setProducts] = useState([]);
     const [error, setError] = useState(null);
@@ -24,18 +24,20 @@ export default function Products() {
     useEffect(() => {
         const timeout = setTimeout(() => {
 
-            // Logika Asli Dosen: Jika ada ID di URL → ambil detail produk
+            // 1. Logika Jika Ada ID: Mengambil data menu Jambang berdasarkan ID URL
             if (id) {
                 const itemDitemukan = DATA_MENU_JAMBANG.find(item => item.id === parseInt(id));
                 if (itemDitemukan) {
                     setProducts([itemDitemukan]);
+                    setError(null);
                 } else {
-                    setError("Menu tidak ditemukan");
+                    setError("Menu Caffe Jambang tidak ditemukan.");
                 }
                 return;
             }
 
-            // Logika Asli Dosen: Jika tidak ada ID → lakukan pencarian (Menggunakan filter lokal tema Jambang)
+            // 2. Logika Tanpa ID: Fitur Pencarian / Filter Berdasarkan Ketikan Input (Query)
+            // Di sini kita tidak menembak dummyjson lagi, tapi langsung memfilter data Caffe Jambang
             const hasilFilter = DATA_MENU_JAMBANG.filter(item => 
                 item.title.toLowerCase().includes(query.toLowerCase())
             );
@@ -82,8 +84,8 @@ export default function Products() {
                             <th className="px-4 py-3">Name</th>
                             <th className="px-4 py-3">Category</th>
                             <th className="px-4 py-3">Price</th>
-                            <th className="px-4 py-3">Vendor / Kitchen</th>
-                            <th className="px-4 py-3 text-center">Aksi</th> {/* Ditambahkan kolom aksi */}
+                            {/* KOLOM VENDOR / KITCHEN SUDAH DIHAPUS SESUAI PERMINTAAN */}
+                            <th className="px-4 py-3 text-center w-28">Aksi</th>
                         </tr>
                     </thead>
 
@@ -91,13 +93,13 @@ export default function Products() {
                         {products.map((item, index) => (
                             <tr
                                 key={item.id}
-                                className="hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                                className="hover:bg-gray-50 transition-colors duration-200"
                             >
                                 <td className="px-6 py-4 font-medium text-gray-700">
                                     {index + 1}
                                 </td>
 
-                                <td className="px-6 py-4 font-medium">
+                                <td className="px-6 py-4 font-medium text-gray-900">
                                     {item.title}
                                 </td>
 
@@ -105,24 +107,20 @@ export default function Products() {
                                     {item.category}
                                 </td>
 
-                                {/* UBAH DI SINI: Lambang $ diganti jadi Rp dan harganya diformat lokal */}
                                 <td className="px-6 py-4 font-semibold text-emerald-600">
                                     Rp {item.price.toLocaleString("id-ID")}
                                 </td>
 
-                                <td className="px-6 py-4 text-gray-500">
-                                    {item.brand}
-                                </td>
+                                {/* KOLOM DATA BRAND/VENDOR SUDAH DIHAPUS DARI SINI */}
 
-                                {/* Ditambahkan tombol detail agar terhubung dengan ProductDetail.jsx */}
                                 <td className="px-6 py-4 text-center">
                                     <button
                                         onClick={() => navigate(`/products/${item.id}`)}
                                         className="px-3 py-1 bg-emerald-600 text-white text-xs font-semibold rounded-md hover:bg-emerald-500 transition shadow"
                                     >
                                         Detail
-                                        </button>
-                                    </td>
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
