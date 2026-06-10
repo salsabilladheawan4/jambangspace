@@ -19,8 +19,8 @@ export default function Header({ userRole = "staff", userName = "User" }) {
                     <FiSearch size={22} className="cursor-pointer hover:text-white transition-colors" />
                     <div className="relative cursor-pointer hover:text-white group">
                         <FiBell size={22} />
-                        <span className="absolute top-0 right-0 bg-red-500 w-2 h-2 rounded-full border-2 border-[#121212]"></span>
                     </div>
+
                 </div>
 
                 {/* Profil Info User */}

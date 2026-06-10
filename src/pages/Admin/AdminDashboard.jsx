@@ -1,9 +1,17 @@
 import React from 'react';
+import SimpleLineChart from '../../components/SimpleLineChart';
 
 export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] }) {
   const totalPendapatan = dataPenjualan.reduce((acc, curr) => acc + curr.total, 0);
   const totalPengeluaran = dataBelanja.reduce((acc, curr) => acc + curr.harga, 0);
   const keuntunganBersih = totalPendapatan - totalPengeluaran;
+
+  const chartDataPenjualan = Array.isArray(dataPenjualan)
+    ? dataPenjualan.slice(0, 10).map((item, idx) => ({
+        label: item.tanggal ? String(item.tanggal).slice(0, 5) : `T${idx + 1}`,
+        value: Number(item.total) || 0,
+      }))
+    : [];
 
   return (
     <div className="p-10 text-white font-instrument">
@@ -26,6 +34,20 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
           <h2 className="text-2xl font-black mt-1 text-green-400">Rp {keuntunganBersih.toLocaleString('id-ID')}</h2>
         </div>
       </div>
+
+      <div className="mt-8 bg-[#1E1E1E] border border-[#2D2D2D] p-6 rounded-[24px]">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">Grafik Penjualan (Uang Masuk)</h3>
+          <span className="text-xs text-gray-500">Top 10 transaksi</span>
+        </div>
+
+        {chartDataPenjualan.length ? (
+          <SimpleLineChart data={chartDataPenjualan} />
+        ) : (
+          <div className="text-sm text-gray-500">Belum ada data penjualan untuk ditampilkan.</div>
+        )}
+      </div>
     </div>
   );
 }
+
