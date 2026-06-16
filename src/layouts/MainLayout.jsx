@@ -1,23 +1,47 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import ProfileDropdown from '../components/ProfileDropdown';
 
-export default function MainLayout({ userRole, userName, onLogout }) {
+export default function MainLayout({ userRole, userName }) {
+  const location = useLocation();
+  
+  // Cek apakah ini halaman Kasir POS
+  const isKasir = location.pathname === '/kasir';
+
+  // Menentukan menu yang aktif (highlight) di Sidebar berdasarkan URL saat ini
+  let activeMenu = 'Dashboard';
+  if (location.pathname.includes('/products')) activeMenu = 'Menu';
+  if (location.pathname.includes('/kasir')) activeMenu = 'Kasir POS';
+  if (location.pathname.includes('/inventaris')) activeMenu = 'Inventaris';
+  if (location.pathname.includes('/laporan')) activeMenu = 'Laporan';
+
   return (
-    <div className="flex min-h-screen bg-[#faf6f1] font-instrument text-[#3d2817]">
+    <div className="flex h-screen bg-[#faf8f6] font-sans">
       
-      <Sidebar userRole={userRole} onLogout={onLogout} />
-      
-      <div className="flex-1 flex flex-col min-h-screen">
-        <main className="flex-1 p-6"> 
+      {/* SIDEBAR KIRI */}
+      <Sidebar activeItem={activeMenu} userRole={userRole} />
+
+      {/* AREA KONTEN KANAN */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        
+        {/* HEADER ATAS (Global)
+            Kita sembunyikan header ini KHUSUS di halaman Kasir (!isKasir) 
+            Karena halaman kasir punya tempat profilnya sendiri di panel tagihan kanan 
+        */}
+        {!isKasir && (
+          <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-end px-8 flex-shrink-0 shadow-sm z-10">
+            <ProfileDropdown 
+              userName={userName} 
+              userRole={userRole?.toLowerCase() === 'admin' ? 'Owner / Admin' : 'Staff Kafe'} 
+            />
+          </header>
+        )}
+
+        {/* AREA HALAMAN UTAMA (Dashboard, Products, Kasir, dll akan muncul di sini) */}
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
-
-        <footer className="bg-[#3d2817] py-8 px-10 border-t border-[#2a1a0f]">
-          <div className="text-center text-xs font-bold tracking-widest text-[#c4b5a0]">
-            © 2026 JAMBANG CAFE WORKSPACE. SEMUA HAK DILINDUNGI.
-          </div>
-        </footer>
         
       </div>
     </div>
