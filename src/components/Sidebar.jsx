@@ -1,122 +1,92 @@
 import {
-    RiDashboardLine,
-    RiTeamLine,
-    RiUser3Line,
-    RiFileChartLine,
-    RiLogoutBoxRLine
-} from "react-icons/ri";
+  RiDashboardLine,
+  RiTeamLine,
+  RiUser3Line,
+  RiFileChartLine,
+  RiLogoutBoxRLine,
+} from 'react-icons/ri';
+import { MdFastfood } from 'react-icons/md';
+import { NavLink } from 'react-router-dom';
 
-import { MdFastfood } from "react-icons/md";
-import { NavLink } from "react-router-dom";
-import logoJambang from "../assets/logo.png";
+export default function Sidebar({ userRole = '', onLogout }) {
+  const menuClass = ({ isActive }) =>
+    `flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+      isActive
+        ? 'bg-[#c97b4b] text-white font-bold shadow-md shadow-[#c97b4b]/20'
+        : 'text-[#6b5344] hover:text-[#3d2817] hover:bg-[#e8dfd4]'
+    }`;
 
-export default function Sidebar({ userRole = "staff", onLogout }) {
+  const MenuItem = ({ icon: Icon, label, to }) => (
+    <li>
+      <NavLink to={to} className={menuClass}>
+        <Icon size={22} />
+        <span className="text-sm tracking-tight">{label}</span>
+      </NavLink>
+    </li>
+  );
 
-    const menuClass = ({ isActive }) =>
-        `flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
-            isActive
-                ? "bg-[#2D2D2D] text-white font-bold shadow-lg shadow-black/20 border border-[#333]"
-                : "text-gray-400 hover:text-white hover:bg-[#252525]"
-        }`;
+  // Mencegah error jika huruf besar/kecil di localStorage berbeda
+  const roleAktif = userRole?.toLowerCase() || '';
 
-    const MenuItem = ({ icon: Icon, label, to }) => (
-        <li>
-            <NavLink
-                id={`menu-${label.toLowerCase().replace(/\s/g, '-')}`}
-                to={to}
-                className={menuClass}
-            >
-                <Icon size={22} />
-                <span className="text-sm tracking-tight">{label}</span>
-            </NavLink>
-        </li>
-    );
+  return (
+    <aside className="w-64 min-h-screen bg-[#faf6f1] border-r border-[#e8dfd4] p-6 flex flex-col sticky top-0 font-instrument">
+      
+      {/* Logo Area */}
+      <div className="flex items-center gap-3 mb-10 px-2">
+        <div className="text-3xl">☕</div>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-[#3d2817]" style={{ fontFamily: "'Georgia', serif" }}>
+            Jambang<span className="text-[#c97b4b]">.</span>
+          </h1>
+          <p className="text-[10px] text-[#8b6f47] font-bold tracking-[0.2em] uppercase mt-0.5">Workspace</p>
+        </div>
+      </div>
 
-    return (
-        <aside
-            id="sidebar-container"
-            className="w-64 min-h-screen bg-[#1A1A1A] border-r border-[#2D2D2D] p-8 flex flex-col sticky top-0 shadow-2xl font-instrument"
+      {/* Navigasi Sangat Ketat Sesuai Folder */}
+      <nav className="flex-1">
+        <ul className="space-y-2">
+          
+          {/* ========================================= */}
+          {/* FOLDER ADMIN (HANYA MUNCUL 2 FILE INI)    */}
+          {/* ========================================= */}
+          {roleAktif === 'admin' && (
+            <>
+              <MenuItem icon={RiDashboardLine} label="Dashboard" to="/dashboard" />
+              <MenuItem icon={RiFileChartLine} label="Laporan" to="/laporan" />
+            </>
+          )}
+
+          {/* ========================================= */}
+          {/* FOLDER STAFF (HANYA MUNCUL FILE STAFF)    */}
+          {/* ========================================= */}
+          {roleAktif === 'staff' && (
+            <>
+              <MenuItem icon={RiDashboardLine} label="Dashboard" to="/dashboard" />
+              <MenuItem icon={MdFastfood} label="Products" to="/products" />
+              <MenuItem icon={RiTeamLine} label="Inventaris" to="/inventaris" />
+              <MenuItem icon={RiUser3Line} label="Kasir POS" to="/kasir" />
+            </>
+          )}
+
+        </ul>
+      </nav>
+
+      {/* Footer Sidebar & Pengecekan Error */}
+      <div className="mt-auto bg-white p-5 rounded-[24px] relative border border-[#e8dfd4] shadow-sm">
+        
+        {/* Jika muncul "TIDAK TERBACA", berarti App.jsx gagal mengirim role */}
+        <p className="text-[10px] text-center font-bold text-[#6b5344] mb-3 uppercase tracking-widest">
+          Role: {roleAktif || 'TIDAK TERBACA'}
+        </p>
+
+        <button
+          onClick={onLogout}
+          className="w-full bg-[#3d2817] hover:bg-[#c97b4b] text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
         >
-
-            {/* Bagian Logo */}
-            <div
-                id="sidebar-logo-section"
-                className="flex flex-col items-center mb-10 px-2"
-            >
-                <img
-                    src={logoJambang}
-                    alt="Logo Jambang"
-                    className="w-full object-contain filter brightness-110"
-                />
-                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#333] to-transparent mt-6"></div>
-            </div>
-
-            {/* Navigasi Menu */}
-            <nav id="sidebar-navigation" className="flex-1">
-                <ul className="space-y-2">
-
-                    {/* Semua Role */}
-                    <MenuItem
-                        icon={RiDashboardLine}
-                        label="Dashboard"
-                        to="/"
-                    />
-
-                    <MenuItem
-                        icon={MdFastfood}
-                        label="Products"
-                        to="/products"
-                    />
-
-                    {/* Menu Staff */}
-                    {userRole === "staff" && (
-                        <>
-                            <MenuItem
-                                icon={RiTeamLine}
-                                label="Inventaris"
-                                to="/inventaris"
-                            />
-
-                            <MenuItem
-                                icon={RiUser3Line}
-                                label="Kasir POS"
-                                to="/kasir"
-                            />
-                        </>
-                    )}
-
-                    {/* Menu Admin */}
-                    {userRole === "admin" && (
-                        <>
-                            <MenuItem
-                                icon={RiFileChartLine}
-                                label="Laporan"
-                                to="/laporan"
-                            />
-                        </>
-                    )}
-
-                </ul>
-            </nav>
-
-            {/* Footer */}
-            <div
-                id="sidebar-footer"
-                className="mt-auto bg-[#252525] p-5 rounded-[24px] relative overflow-hidden border border-[#333]"
-            >
-                <p className="text-[10px] text-center font-bold text-gray-400 mb-3 uppercase tracking-widest">
-                    Role: {userRole}
-                </p>
-
-                <button
-                    onClick={onLogout}
-                    className="w-full bg-[#EF4444] text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-red-600 active:scale-95 transition-all"
-                >
-                    <RiLogoutBoxRLine size={16} />
-                    Keluar Sistem
-                </button>
-            </div>
-
-        </aside>
-    );
+          <RiLogoutBoxRLine size={16} />
+          LOGOUT
+        </button>
+      </div>
+    </aside>
+  );
 }

@@ -1,130 +1,95 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PageHeader from "../components/PageHeader";
 import { BsFillExclamationDiamondFill } from "react-icons/bs";
-import { useParams, useNavigate } from "react-router-dom";
 
-// DATA MENU ASLI / NYATA CAFFE JAMBANG MARPOYAN PEKANBARU
-const DATA_MENU_JAMBANG = [
-    { id: 1, title: "Kopi Susu Gula Aren Jambang", category: "Kopi (Coffee)", price: 18000 },
-    { id: 2, title: "Matcha Latte Ice", category: "Non-Kopi (Non-Coffee)", price: 20000 },
-    { id: 3, title: "Nasi Goreng Kampung Jambang", category: "Makanan Berat", price: 25000 },
-    { id: 4, title: "Kentang Goreng Spesial / French Fries", category: "Cemilan (Snack)", price: 15000 },
-    { id: 5, title: "Mie Goreng Sumatra", category: "Makanan Berat", price: 18000 }
-];
-
-export default function Products() {
+// Komponen Products menerima menuList dan setMenuList dari App.jsx
+export default function Products({ menuList = [], setMenuList, userRole }) {
     const breadcrumb = ["Dashboard", "Product List"];
-    const { id } = useParams();
-    const navigate = useNavigate();
+    
+    // State untuk form input menu baru
+    const [title, setTitle] = useState("");
+    const [category, setCategory] = useState("Kopi");
+    const [price, setPrice] = useState("");
 
-    const [products, setProducts] = useState([]);
-    const [error, setError] = useState(null);
-    const [query, setQuery] = useState("");
+    // Fungsi untuk menambah menu ke data pusat (App.jsx)
+    const handleAddMenu = (e) => {
+        e.preventDefault();
+        if (!title || !price) return alert("Nama dan harga menu harus diisi!");
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
+        const newMenu = {
+            id: Date.now(),
+            title: title,
+            category: category,
+            price: parseInt(price)
+        };
 
-            // 1. Logika Jika Ada ID: Mengambil data menu Jambang berdasarkan ID URL
-            if (id) {
-                const itemDitemukan = DATA_MENU_JAMBANG.find(item => item.id === parseInt(id));
-                if (itemDitemukan) {
-                    setProducts([itemDitemukan]);
-                    setError(null);
-                } else {
-                    setError("Menu Caffe Jambang tidak ditemukan.");
-                }
-                return;
-            }
-
-            // 2. Logika Tanpa ID: Fitur Pencarian / Filter Berdasarkan Ketikan Input (Query)
-            // Di sini kita tidak menembak dummyjson lagi, tapi langsung memfilter data Caffe Jambang
-            const hasilFilter = DATA_MENU_JAMBANG.filter(item => 
-                item.title.toLowerCase().includes(query.toLowerCase())
-            );
-            
-            setProducts(hasilFilter);
-            setError(null);
-
-        }, 500);
-
-        return () => clearTimeout(timeout);
-    }, [query, id]);
-
-    const errorInfo = error ? (
-        <div className="bg-red-200 mb-5 p-5 text-sm font-light text-gray-600 rounded flex items-center">
-            <BsFillExclamationDiamondFill className="text-red-600 me-2 text-lg" />
-            {error}
-        </div>
-    ) : null;
+        setMenuList([...menuList, newMenu]);
+        setTitle("");
+        setPrice("");
+        alert("Menu berhasil ditambahkan!");
+    };
 
     return (
-        <div className="p-6">
-            <PageHeader
-                title="Product List"
-                breadcrumb={breadcrumb}
-            />
+        <div className="p-4 md:p-10 font-instrument text-[#3d2817]">
+            <PageHeader title="Product List" breadcrumb={breadcrumb} />
 
-            {errorInfo}
-
-            {!id && (
-                <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Cari menu Caffe Jambang..."
-                    className="mb-4 p-3 w-full bg-white rounded-2xl shadow-lg border border-gray-100"
-                />
-            )}
-
-            <div className="overflow-x-auto mt-6">
-                <table className="min-w-full divide-y divide-gray-200 overflow-hidden rounded-2xl shadow-lg">
-                    <thead>
-                        <tr className="bg-emerald-600 text-white text-left text-sm font-semibold">
-                            <th className="px-4 py-3">#</th>
-                            <th className="px-4 py-3">Name</th>
-                            <th className="px-4 py-3">Category</th>
-                            <th className="px-4 py-3">Price</th>
-                            {/* KOLOM VENDOR / KITCHEN SUDAH DIHAPUS SESUAI PERMINTAAN */}
-                            <th className="px-4 py-3 text-center w-28">Aksi</th>
-                        </tr>
-                    </thead>
-
-                    <tbody className="bg-white divide-y divide-gray-100 text-sm text-gray-800">
-                        {products.map((item, index) => (
-                            <tr
-                                key={item.id}
-                                className="hover:bg-gray-50 transition-colors duration-200"
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* Form Tambah Menu (Hanya Admin) */}
+                {userRole?.toLowerCase() === 'admin' && (
+                    <div className="bg-white p-8 rounded-[24px] border border-[#e8dfd4] shadow-sm h-fit">
+                        <h2 className="text-xl font-bold mb-6 text-[#c97b4b]" style={{ fontFamily: "'Georgia', serif" }}>+ Tambah Menu Baru</h2>
+                        <form onSubmit={handleAddMenu} className="flex flex-col gap-4">
+                            <input 
+                                className="p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm focus:outline-none focus:border-[#c97b4b]" 
+                                placeholder="Nama Menu" value={title} onChange={e => setTitle(e.target.value)} 
+                            />
+                            <select 
+                                className="p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm focus:outline-none focus:border-[#c97b4b]"
+                                value={category} onChange={e => setCategory(e.target.value)}
                             >
-                                <td className="px-6 py-4 font-medium text-gray-700">
-                                    {index + 1}
-                                </td>
+                                <option value="Kopi">Kopi</option>
+                                <option value="Non-Kopi">Non-Kopi</option>
+                                <option value="Makanan">Makanan</option>
+                                <option value="Cemilan">Cemilan</option>
+                            </select>
+                            <input 
+                                type="number"
+                                className="p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm focus:outline-none focus:border-[#c97b4b]" 
+                                placeholder="Harga (Rp)" value={price} onChange={e => setPrice(e.target.value)} 
+                            />
+                            <button type="submit" className="bg-[#3d2817] text-white p-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#c97b4b] transition-all">
+                                Simpan Menu
+                            </button>
+                        </form>
+                    </div>
+                )}
 
-                                <td className="px-6 py-4 font-medium text-gray-900">
-                                    {item.title}
-                                </td>
-
-                                <td className="px-6 py-4 text-gray-500">
-                                    {item.category}
-                                </td>
-
-                                <td className="px-6 py-4 font-semibold text-emerald-600">
-                                    Rp {item.price.toLocaleString("id-ID")}
-                                </td>
-
-                                {/* KOLOM DATA BRAND/VENDOR SUDAH DIHAPUS DARI SINI */}
-
-                                <td className="px-6 py-4 text-center">
-                                    <button
-                                        onClick={() => navigate(`/products/${item.id}`)}
-                                        className="px-3 py-1 bg-emerald-600 text-white text-xs font-semibold rounded-md hover:bg-emerald-500 transition shadow"
-                                    >
-                                        Detail
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                {/* Tabel Daftar Menu */}
+                <div className={`${userRole?.toLowerCase() === 'admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                    <div className="bg-white overflow-hidden rounded-2xl shadow-sm border border-[#e8dfd4]">
+                        <table className="min-w-full divide-y divide-[#e8dfd4]">
+                            <thead className="bg-[#3d2817] text-white text-left text-xs font-semibold uppercase tracking-wider">
+                                <tr>
+                                    <th className="px-6 py-4">Name</th>
+                                    <th className="px-6 py-4">Category</th>
+                                    <th className="px-6 py-4">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#e8dfd4]">
+                                {menuList.map((item) => (
+                                    <tr key={item.id} className="hover:bg-[#faf6f1] transition-colors">
+                                        <td className="px-6 py-4 font-bold">{item.title}</td>
+                                        <td className="px-6 py-4 text-[#6b5344]">{item.category}</td>
+                                        <td className="px-6 py-4 font-bold text-[#c97b4b]">
+                                            Rp {item.price.toLocaleString("id-ID")}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     );

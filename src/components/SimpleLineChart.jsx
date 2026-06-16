@@ -5,16 +5,16 @@ function clamp(num, min, max) {
 }
 
 export default function SimpleLineChart({
-  data = [], // [{ label, value }]
+  data = [], 
   height = 220,
-  stroke = "#06B6D4",
-  fill = "rgba(6,182,212,0.15)",
+  stroke = "#c97b4b",
+  fill = "rgba(201,123,75,0.15)",
   yLabelPrefix = "Rp ",
 }) {
   const safe = Array.isArray(data) ? data : [];
   const values = safe.map((d) => Number(d.value) || 0);
 
-  const width = 640; // internal SVG coordinate system
+  const width = 640; 
   const padding = 36;
   const chartW = width - padding * 2;
   const chartH = height - padding * 2;
@@ -30,92 +30,74 @@ export default function SimpleLineChart({
   };
 
   const yForValue = (v) => {
-    const t = (Number(v) - minV) / range; // 0..1
-    const y = padding + (1 - t) * chartH;
-    return clamp(y, padding, padding + chartH);
+    const t = (Number(v) - minV) / range;
+    return padding + chartH - t * chartH;
   };
 
-  const points = safe.map((d, i) => {
-    const x = xForIndex(i);
-    const y = yForValue(d.value);
-    return { x, y, label: d.label };
-  });
+  const points = safe.map((d, i) => ({
+    x: xForIndex(i),
+    y: yForValue(d.value),
+    label: d.label,
+  }));
 
-  const pathD = points
-    .map((p, i) => {
-      if (i === 0) return `M ${p.x} ${p.y}`;
-      return `L ${p.x} ${p.y}`;
-    })
-    .join(" ");
+  const pathD = points.length
+    ? `M ${points.map((p) => `${p.x},${p.y}`).join(" L ")}`
+    : "";
 
-  const areaD = (() => {
-    if (!points.length) return "";
-    const first = points[0];
-    const last = points[points.length - 1];
-    return `${pathD} L ${last.x} ${padding + chartH} L ${first.x} ${padding + chartH} Z`;
-  })();
+  const areaD = points.length
+    ? `${pathD} L ${points[points.length - 1].x},${padding + chartH} L ${
+        points[0].x
+      },${padding + chartH} Z`
+    : "";
 
-  const yTicks = 4;
-  const ticks = Array.from({ length: yTicks + 1 }).map((_, i) => {
-    const t = i / yTicks;
-    const v = minV + (1 - t) * range;
-    const y = padding + t * chartH;
-    return { y, v };
-  });
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map((t) => ({
+    v: minV + t * range,
+    y: padding + chartH - t * chartH,
+  }));
 
   return (
-    <div className="w-full">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[${height}px]" role="img" aria-label="Grafik Penjualan">
-        {/* Grid + Y labels */}
-        {ticks.map((tick, idx) => (
-          <g key={idx}>
-            <line x1={padding} x2={width - padding} y1={tick.y} y2={tick.y} stroke="rgba(255,255,255,0.08)" />
-            <text x={padding - 10} y={tick.y + 4} fill="rgba(255,255,255,0.45)" fontSize="12" textAnchor="end">
-              {yLabelPrefix}
-              {Math.round(tick.v).toLocaleString("id-ID")}
-            </text>
-          </g>
-        ))}
+    <svg width="100%" height={height} viewBox={"0 0 " + width + " " + height} preserveAspectRatio="none" className="font-instrument">
+      {/* Skala Y */}
+      {yTicks.map((tick, idx) => (
+        <g key={idx}>
+          <line x1={padding} y1={tick.y} x2={width - padding} y2={tick.y} stroke="#e8dfd4" strokeDasharray="4 4" />
+          <text x={padding - 10} y={tick.y + 4} fill="#6b5344" fontSize="12" textAnchor="end">
+            {yLabelPrefix}
+            {Math.round(tick.v).toLocaleString("id-ID")}
+          </text>
+        </g>
+      ))}
 
-        {/* Area */}
-        {areaD ? <path d={areaD} fill={fill} /> : null}
+      {/* Area Bawah Grafik */}
+      {areaD ? <path d={areaD} fill={fill} /> : null}
 
-        {/* Line */}
-        {pathD ? (
-          <path d={pathD} fill="none" stroke={stroke} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
-        ) : null}
+      {/* Garis Grafik */}
+      {pathD ? (
+        <path d={pathD} fill="none" stroke={stroke} strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
+      ) : null}
 
-        {/* Points */}
-        {points.map((p, idx) => (
-          <g key={idx}>
-            <circle cx={p.x} cy={p.y} r={5} fill="#0EA5E9" />
-            <circle cx={p.x} cy={p.y} r={10} fill="rgba(14,165,233,0.12)" />
-            <title>
-              {p.label} - {yLabelPrefix}
-              {Number(safe[idx]?.value || 0).toLocaleString("id-ID")}
-            </title>
-          </g>
-        ))}
+      {/* Titik-titik Data */}
+      {points.map((p, idx) => (
+        <g key={idx}>
+          <circle cx={p.x} cy={p.y} r={5} fill="#3d2817" />
+          <circle cx={p.x} cy={p.y} r={10} fill={fill} />
+          <title>
+            {p.label} - {yLabelPrefix}
+            {Number(safe[idx]?.value || 0).toLocaleString("id-ID")}
+          </title>
+        </g>
+      ))}
 
-        {/* X labels (sparse) */}
-        {points.map((p, idx) => {
-          const step = Math.ceil(points.length / 6) || 1;
-          if (idx % step !== 0 && idx !== points.length - 1) return null;
-          return (
-            <text
-              key={idx}
-              x={p.x}
-              y={padding + chartH + 22}
-              fill="rgba(255,255,255,0.55)"
-              fontSize="12"
-              textAnchor="middle"
-            >
-              {p.label}
-            </text>
-          );
-        })}
-      </svg>
-    </div>
+      {/* Label X */}
+      {points.map((p, idx) => {
+        const step = Math.ceil(points.length / 6);
+        if (idx % step !== 0 && idx !== points.length - 1) return null;
+        return (
+          <text key={idx} x={p.x} y={height - 10} fill="#6b5344" fontSize="11" textAnchor="middle">
+            {p.label}
+          </text>
+        );
+      })}
+    </svg>
   );
 }
-
