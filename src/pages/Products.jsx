@@ -1,32 +1,70 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageHeader from "../components/PageHeader";
-import { BsFillExclamationDiamondFill } from "react-icons/bs";
+import { supabase } from '.././Services/supabaseClient';
 
-// Komponen Products menerima menuList dan setMenuList dari App.jsx
-export default function Products({ menuList = [], setMenuList, userRole }) {
+export default function Products({ userRole }) {
     const breadcrumb = ["Dashboard", "Product List"];
     
-    // State untuk form input menu baru
+    // State untuk menampung data dari Supabase
+    const [menuList, setMenuList] = useState([]);
+    
+    // State untuk form input
     const [title, setTitle] = useState("");
-    const [category, setCategory] = useState("Kopi");
+    const [category, setCategory] = useState("Coffee");
     const [price, setPrice] = useState("");
 
-    // Fungsi untuk menambah menu ke data pusat (App.jsx)
-    const handleAddMenu = (e) => {
+    // Fungsi untuk menarik data dari Supabase
+    const fetchMenus = async () => {
+        const { data, error } = await supabase
+            .from('menus')
+            .select('*')
+            .order('id', { ascending: true }); // Urutkan berdasarkan ID
+            
+        if (error) console.error("Gagal menarik data menu:", error);
+        else setMenuList(data || []);
+    };
+
+    // Gunakan useEffect untuk Fetch awal & Subscription Real-time
+    useEffect(() => {
+        fetchMenus(); // Tarik data saat komponen pertama kali dimuat
+
+        // Aktifkan Real-time Subscription Supabase
+        const menuSubscription = supabase
+            .channel('realtime-menus')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'menus' }, (payload) => {
+                console.log("Perubahan data menu terdeteksi!", payload);
+                fetchMenus(); // Refetch data jika ada perubahan (INSERT/UPDATE/DELETE)
+            })
+            .subscribe();
+
+        // Bersihkan subscription saat pindah halaman
+        return () => {
+            supabase.removeChannel(menuSubscription);
+        };
+    }, []);
+
+    // Fungsi untuk menambah menu ke Supabase
+    const handleAddMenu = async (e) => {
         e.preventDefault();
         if (!title || !price) return alert("Nama dan harga menu harus diisi!");
+        
+        // Insert langsung ke tabel 'menus' di Supabase
+        const { error } = await supabase
+            .from('menus')
+            .insert([{ 
+                title: title, 
+                category: category, 
+                price: parseInt(price) 
+            }]);
 
-        const newMenu = {
-            id: Date.now(),
-            title: title,
-            category: category,
-            price: parseInt(price)
-        };
-
-        setMenuList([...menuList, newMenu]);
-        setTitle("");
-        setPrice("");
-        alert("Menu berhasil ditambahkan!");
+        if (error) {
+            alert("Gagal menambah menu: " + error.message);
+        } else {
+            setTitle("");
+            setPrice("");
+            alert("Menu berhasil ditambahkan ke Database!");
+            // Tidak perlu setMenuList manual, karena realtime subscription akan mengurusnya
+        }
     };
 
     return (
@@ -48,10 +86,11 @@ export default function Products({ menuList = [], setMenuList, userRole }) {
                                 className="p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm focus:outline-none focus:border-[#c97b4b]"
                                 value={category} onChange={e => setCategory(e.target.value)}
                             >
-                                <option value="Kopi">Kopi</option>
+                                <option value="Coffee">Coffee</option>
                                 <option value="Non-Kopi">Non-Kopi</option>
-                                <option value="Makanan">Makanan</option>
-                                <option value="Cemilan">Cemilan</option>
+                                <option value="Rice">Rice (Makanan)</option>
+                                <option value="Snack">Snack (Cemilan)</option>
+                                <option value="Dessert">Dessert</option>
                             </select>
                             <input 
                                 type="number"
@@ -77,15 +116,19 @@ export default function Products({ menuList = [], setMenuList, userRole }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#e8dfd4]">
-                                {menuList.map((item) => (
-                                    <tr key={item.id} className="hover:bg-[#faf6f1] transition-colors">
-                                        <td className="px-6 py-4 font-bold">{item.title}</td>
-                                        <td className="px-6 py-4 text-[#6b5344]">{item.category}</td>
-                                        <td className="px-6 py-4 font-bold text-[#c97b4b]">
-                                            Rp {item.price.toLocaleString("id-ID")}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {menuList.length === 0 ? (
+                                    <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-400">Loading atau Menu Kosong...</td></tr>
+                                ) : (
+                                    menuList.map((item) => (
+                                        <tr key={item.id} className="hover:bg-[#faf6f1] transition-colors">
+                                            <td className="px-6 py-4 font-bold">{item.title}</td>
+                                            <td className="px-6 py-4 text-[#6b5344]">{item.category}</td>
+                                            <td className="px-6 py-4 font-bold text-[#c97b4b]">
+                                                Rp {item.price.toLocaleString("id-ID")}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

@@ -10,7 +10,6 @@ const GuestLayout = ({ children }) => {
       <main>
         <LandingPage/>
       </main>
-      <FooterGuest />
     </div>
   );
 };

@@ -1,171 +1,152 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { supabase } from '../../Services/supabaseClient';
 
-export default function StaffInventaris({ staffName, onAddBelanja }) {
-  // Form Belanja
+export default function StaffInventaris({ staffName }) {
+  // State untuk form
   const [barang, setBarang] = useState('');
   const [jumlah, setJumlah] = useState('');
   const [satuan, setSatuan] = useState('Kg');
   const [harga, setHarga] = useState('');
+  
+  // State untuk tabel
+  const [daftarStok, setDaftarStok] = useState([]);
 
-  // Data Stok Awal
-  const [daftarStok, setDaftarStok] = useState([
-    { id: 1, namaBahan: 'Susu UHT Full Cream', stok: 8, satuan: 'Karton' }, 
-    { id: 2, namaBahan: 'Biji Kopi Espresso Arabica', stok: 25, satuan: 'Kg' }, 
-    { id: 3, namaBahan: 'Sirup Caramel', stok: 4, satuan: 'Botol' }, 
-    { id: 4, namaBahan: 'Gelas Cup Plastik L', stok: 150, satuan: 'Pcs' }, 
-  ]);
+  // Fetch data
+  const fetchStok = async () => {
+    const { data, error } = await supabase.from('inventory').select('*').order('id', { ascending: false });
+    if (!error && data) {
+      setDaftarStok(data);
+    }
+  };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchStok();
+  }, []);
+
+  // Fungsi Submit Form
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!barang || !jumlah || !harga) return alert('Mohon isi semua kolom nota!');
+    if (!barang || !jumlah || !harga) return alert('Mohon isi semua kolom!');
     
-    // 1. KIRIM KE LAPORAN ADMIN (Uang Keluar)
-    onAddBelanja({
-      tanggal: new Date().toLocaleString('id-ID'),
-      barang,
-      jumlah: parseInt(jumlah),
-      harga: parseInt(harga),
-      staff: staffName
-    });
+    try {
+      // Simpan ke pengeluaran (purchases)
+      await supabase.from('purchases').insert([{
+        item_name: barang,
+        qty: parseInt(jumlah),
+        unit: satuan,
+        total_cost: parseInt(harga),
+        staff: staffName || 'Staff'
+      }]);
 
-    // 2. TAMBAHKAN KE TABEL STOK (Update Fisik Gudang)
-    const barangBaru = {
-      id: Date.now(),
-      namaBahan: barang,
-      stok: parseInt(jumlah),
-      satuan: satuan
-    };
-    setDaftarStok([...daftarStok, barangBaru]);
-    
-    alert('Berhasil! Barang masuk ke Gudang & Laporan Admin.');
-    setBarang(''); setJumlah(''); setHarga(''); setSatuan('Kg');
-  };
+      // Update atau Insert ke inventory
+      const { data: existing } = await supabase.from('inventory').select('*').eq('item_name', barang).single();
+      
+      if (existing) {
+        await supabase.from('inventory').update({ stock: existing.stock + parseInt(jumlah) }).eq('id', existing.id);
+      } else {
+        await supabase.from('inventory').insert([{ item_name: barang, stock: parseInt(jumlah), unit: satuan }]);
+      }
 
-  const tambahStok = (id) => {
-    setDaftarStok(daftarStok.map(item => item.id === id ? { ...item, stok: item.stok + 1 } : item));
-  };
-  const kurangStok = (id) => {
-    setDaftarStok(daftarStok.map(item => item.id === id && item.stok > 0 ? { ...item, stok: item.stok - 1 } : item));
+      alert('Stok berhasil ditambahkan!');
+      setBarang(''); setJumlah(''); setHarga(''); setSatuan('Kg');
+      fetchStok(); // Refresh tabel
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat menyimpan data.');
+    }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-[#faf8f6] font-sans">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col lg:flex-row h-screen bg-[#faf8f6] p-6 md:p-10 gap-8 font-instrument">
       
-      {/* KIRI: FORM BARANG MASUK */}
-      <aside className="w-full lg:w-[400px] bg-white border-r border-gray-100 p-8 flex flex-col flex-shrink-0 overflow-y-auto">
+      {/* Kolom Form Input Kiri */}
+      <aside className="w-full lg:w-[400px] bg-white p-8 rounded-[32px] border border-[#e8dfd4] shadow-lg flex flex-col">
         <div className="mb-8">
-          <h2 className="text-3xl font-black text-[#2a1a1a]" style={{ fontFamily: "'Georgia', serif" }}>Barang Masuk</h2>
-          <p className="text-sm text-gray-500 mt-2">Catat pembelian bahan baku baru di sini.</p>
+          <h2 className="text-2xl font-black text-[#3d2817]" style={{ fontFamily: "'Georgia', serif" }}>Input Barang</h2>
+          <p className="text-xs text-[#6b5344] mt-1">Tambahkan stok bahan baku ke gudang.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Nama Bahan Baku</label>
-            <input 
-              type="text" value={barang} onChange={e => setBarang(e.target.value)} 
-              className="p-4 bg-[#faf8f6] rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#6b3a3a] transition" 
-              placeholder="Misal: Gula Aren" 
-            />
+        <form onSubmit={handleSubmit} className="space-y-5 flex-1">
+          <div>
+            <label className="block text-xs font-bold text-[#6b5344] mb-2 uppercase tracking-widest">Nama Bahan / Barang</label>
+            <input type="text" value={barang} onChange={(e) => setBarang(e.target.value)} required autoComplete="off" className="w-full p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm text-[#3d2817] focus:outline-none focus:border-[#c97b4b] transition-all" placeholder="Contoh: Biji Kopi Arabica" />
           </div>
-
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Jumlah</label>
-              <input 
-                type="number" min="1" value={jumlah} onChange={e => setJumlah(e.target.value)} 
-                className="p-4 bg-[#faf8f6] rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#6b3a3a] transition" 
-                placeholder="0" 
-              />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-[#6b5344] mb-2 uppercase tracking-widest">Jumlah</label>
+              <input type="number" value={jumlah} onChange={(e) => setJumlah(e.target.value)} required min="1" autoComplete="off" className="w-full p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm text-[#3d2817] focus:outline-none focus:border-[#c97b4b] transition-all" placeholder="0" />
             </div>
-            <div className="flex flex-col gap-2 w-1/3">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Satuan</label>
-              <select 
-                value={satuan} onChange={e => setSatuan(e.target.value)}
-                className="p-4 bg-[#faf8f6] rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#6b3a3a] transition"
-              >
+            <div>
+              <label className="block text-xs font-bold text-[#6b5344] mb-2 uppercase tracking-widest">Satuan</label>
+              <select value={satuan} onChange={(e) => setSatuan(e.target.value)} className="w-full p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm text-[#3d2817] focus:outline-none focus:border-[#c97b4b] transition-all cursor-pointer">
                 <option value="Kg">Kg</option>
                 <option value="Liter">Liter</option>
                 <option value="Pcs">Pcs</option>
-                <option value="Botol">Botol</option>
-                <option value="Karton">Karton</option>
+                <option value="Gram">Gram</option>
+                <option value="Pack">Pack</option>
               </select>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Harga Beli (Rp)</label>
-            <input 
-              type="number" min="1" value={harga} onChange={e => setHarga(e.target.value)} 
-              className="p-4 bg-[#faf8f6] rounded-2xl border border-gray-200 text-sm focus:outline-none focus:border-[#6b3a3a] transition" 
-              placeholder="Contoh: 150000" 
-            />
+          <div>
+            <label className="block text-xs font-bold text-[#6b5344] mb-2 uppercase tracking-widest">Total Harga Beli</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">Rp</span>
+              <input type="number" value={harga} onChange={(e) => setHarga(e.target.value)} required min="1" autoComplete="off" className="w-full pl-10 pr-3 py-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm text-[#3d2817] focus:outline-none focus:border-[#c97b4b] transition-all" placeholder="50000" />
+            </div>
           </div>
 
-          <button type="submit" className="mt-4 w-full bg-[#6b3a3a] hover:bg-[#5a2e2e] text-white py-4 rounded-2xl text-sm font-bold transition-all shadow-md transform hover:-translate-y-1">
-            + Tambah ke Gudang
+          <button type="submit" className="w-full bg-[#3d2817] text-white p-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#c97b4b] transition-all mt-6 shadow-md">
+            + Tambah Stok
           </button>
         </form>
       </aside>
 
-      {/* KANAN: TABEL STOCK OPNAME */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-black text-[#2a1a1a]" style={{ fontFamily: "'Georgia', serif" }}>Stock Opname</h1>
-          <span className="bg-[#6b3a3a]/10 text-[#6b3a3a] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider">
-            Live Update
-          </span>
+      {/* Tabel Kanan */}
+      <main className="flex-1 bg-white rounded-[32px] shadow-lg border border-[#e8dfd4] flex flex-col overflow-hidden">
+        <div className="p-8 border-b border-[#e8dfd4] bg-[#faf6f1]">
+          <h2 className="text-xl font-black text-[#3d2817]">Status Gudang</h2>
         </div>
+        <div className="flex-1 overflow-y-auto">
+          <table className="w-full text-left">
+            <thead className="bg-white sticky top-0 z-10 shadow-sm">
+              <tr>
+                <th className="p-6 text-xs uppercase font-black tracking-widest text-[#a89b8d]">Nama Barang</th>
+                <th className="p-6 text-xs uppercase font-black tracking-widest text-[#a89b8d]">Stok</th>
+                <th className="p-6 text-xs uppercase font-black tracking-widest text-[#a89b8d] text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#faf6f1]">
+              {daftarStok.length === 0 ? (
+                <tr><td colSpan="3" className="p-10 text-center text-gray-400 font-medium">Belum ada stok tercatat di database.</td></tr>
+              ) : (
+                daftarStok.map((item, i) => {
+                  const nama = item.item_name || item.name || item.barang || 'Tanpa Nama';
+                  const stok = item.stock || item.qty || 0;
+                  const unit = item.unit || item.satuan || '';
+                  const isKritis = stok < 10;
 
-        <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="text-gray-400 text-xs uppercase border-b border-gray-100">
-                  <th className="pb-4 px-4 font-bold">Bahan Baku Gudang</th>
-                  <th className="pb-4 px-4 text-center font-bold">Sesuaikan Fisik</th>
-                  <th className="pb-4 px-4 text-right font-bold">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {daftarStok.map((item) => {
-                  const isKritis = item.stok <= 5;
                   return (
-                    <tr key={item.id} className="hover:bg-[#faf8f6] transition-colors group">
-                      <td className="py-4 px-4 font-bold text-[#2a1a1a] text-base">{item.namaBahan}</td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center justify-center gap-4">
-                          <button onClick={() => kurangStok(item.id)} className="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 font-black hover:bg-[#6b3a3a] hover:text-white transition-colors">-</button>
-                          <div className="w-20 text-center">
-                            <span className={`block font-black text-xl ${isKritis ? 'text-red-500' : 'text-[#2a1a1a]'}`}>{item.stok}</span>
-                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{item.satuan}</span>
-                          </div>
-                          <button onClick={() => tambahStok(item.id)} className="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 font-black hover:bg-[#6b3a3a] hover:text-white transition-colors">+</button>
-                        </div>
+                    <motion.tr key={item.id || i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="hover:bg-[#faf6f1] transition-colors group">
+                      <td className="p-6 font-bold text-[#3d2817]">{nama}</td>
+                      <td className="p-6 font-medium text-[#6b5344]">
+                        <span className="bg-[#faf8f6] px-3 py-1 rounded-md group-hover:bg-white">{stok} {unit}</span>
                       </td>
-                      <td className="py-4 px-4 text-right">
-                        {isKritis ? (
-                          <span className="inline-block bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold animate-pulse">⚠️ KRITIS</span>
-                        ) : (
-                          <span className="inline-block bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg text-xs font-bold">✅ AMAN</span>
-                        )}
+                      <td className="p-6 text-right">
+                        <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${isKritis ? 'bg-red-500 text-white' : 'bg-[#e8dfd4] text-[#3d2817]'}`}>
+                          {isKritis ? 'KRITIS' : 'AMAN'}
+                        </span>
                       </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="mt-8 p-5 bg-[#3d2817] rounded-[24px] text-sm text-[#d4cfc4] leading-relaxed flex gap-4 items-start shadow-lg">
-          <span className="text-3xl">💡</span>
-          <div>
-            <h4 className="font-bold text-white mb-1 text-base">Instruksi Staf Gudang:</h4>
-            <p>1. Input barang yang baru dibeli di form sebelah kiri.<br/>2. Di akhir shift kerja, hitung sisa barang secara fisik di rak kafe.<br/>3. Gunakan tombol (+) atau (-) pada tabel di atas agar angka di sistem sama persis dengan jumlah asli di rak.</p>
-          </div>
+                    </motion.tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </main>
-
-    </div>
+    </motion.div>
   );
 }

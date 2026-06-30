@@ -1,36 +1,170 @@
+import React, { useState } from 'react';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../Services/supabaseClient';
+import { motion } from 'framer-motion';
+import logo from '../../assets/logo.png';
+
 export default function Register() {
-    return (
-        <div className="font-instrument">
-            <h2 className="text-2xl font-black text-[#3d2817] mb-6 text-center uppercase tracking-tighter" style={{ fontFamily: "'Georgia', serif" }}>
-                Daftar Akun
-            </h2>
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('staff');
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-            <form className="space-y-5">
-                <div>
-                    <label className="block text-[10px] font-black text-[#6b5344] uppercase tracking-widest mb-2">Email Address</label>
-                    <input
-                        type="email"
-                        className="w-full px-4 py-3 bg-[#faf6f1] border border-[#e8dfd4] focus:border-[#c97b4b] rounded-xl text-[#3d2817] text-sm outline-none transition-all"
-                        placeholder="user@jambang.com"
-                    />
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!name || !email || !password) {
+      Swal.fire({ title: "Pendaftaran Gagal!", text: "Semua kolom tidak boleh kosong.", icon: "warning", confirmButtonColor: "#c97b4b" });
+      return;
+    }
+
+    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+
+    try {
+      const { data, error } = await supabase.auth.signUp({ email: email.trim(), password: password });
+      if (error) throw error;
+
+      if (data.user) {
+        const { error: profileError } = await supabase.from('profiles').insert([{ id: data.user.id, name: name, role: role }]);
+        if (profileError) throw profileError;
+      }
+
+      Swal.fire({
+        title: "Berhasil!", text: "Akun berhasil dibuat. Silakan masuk.", icon: "success", confirmButtonColor: "#c97b4b", timer: 2000, showConfirmButton: false,
+      }).then(() => navigate('/login'));
+
+    } catch (error) {
+      Swal.fire({ title: "Gagal!", text: error.message, icon: "error", confirmButtonColor: "#c97b4b" });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex h-screen w-full bg-[#faf8f6] font-sans overflow-hidden z-50">
+      
+      {/* Bagian Kiri - Gambar */}
+      <div className="hidden lg:flex lg:w-1/2 relative h-full overflow-hidden">
+        <motion.img 
+          initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }}
+          src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=1000&auto=format&fit=crop" 
+          alt="Coffee Beans" className="w-full h-full object-cover" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2a1a0f] via-[#2a1a0f]/40 to-transparent" />
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}
+          className="absolute bottom-16 left-16 right-16 text-white"
+        >
+          <p className="text-4xl font-bold italic mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+            "Bergabunglah dengan tim yang mendedikasikan diri pada kesempurnaan."
+          </p>
+          <div className="flex items-center gap-4">
+            <img src={logo} alt="Jambang Cafe Logo" className="h-16 w-auto object-contain drop-shadow-md" />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Bagian Kanan - Formulir */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 h-full overflow-y-auto relative">
+        
+        {/* Ornamen Background Animasi Floating */}
+        <motion.div 
+          animate={{ y: [0, 20, 0], scale: [1, 1.1, 1] }} 
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-5%] left-[-5%] w-72 h-72 bg-[#c97b4b] opacity-[0.05] rounded-full blur-3xl pointer-events-none"
+        />
+        <motion.div 
+          animate={{ y: [0, -20, 0], scale: [1, 1.1, 1] }} 
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-10 right-[-10%] w-96 h-96 bg-[#3d2817] opacity-[0.04] rounded-full blur-3xl pointer-events-none"
+        />
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-md bg-white p-8 md:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#e8dfd4] relative z-10 my-8"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-[#3d2817] mb-2 font-serif">Buat Akun</h1>
+            <p className="text-[#6b5344] text-sm">Daftarkan akses Anda ke sistem manajemen.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Input Nama */}
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+              <label className="block text-xs font-bold text-[#3d2817] uppercase tracking-widest mb-2">Nama Lengkap</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#a89b8d]">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
-
-                <div>
-                    <label className="block text-[10px] font-black text-[#6b5344] uppercase tracking-widest mb-2">Password</label>
-                    <input
-                        type="password"
-                        className="w-full px-4 py-3 bg-[#faf6f1] border border-[#e8dfd4] focus:border-[#c97b4b] rounded-xl text-[#3d2817] text-sm outline-none transition-all"
-                        placeholder="********"
-                    />
+                <input type="text" name="fullName" autoComplete="off" value={name} onChange={(e) => setName(e.target.value)} placeholder="Masukkan nama lengkap" className="w-full pl-12 pr-5 py-3.5 bg-[#faf6f1] border border-[#e8dfd4] rounded-xl focus:ring-2 focus:ring-[#c97b4b]/20 focus:border-[#c97b4b] outline-none transition-all text-[#3d2817]" />
+              </div>
+            </motion.div>
+            
+            {/* Input Email */}
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+              <label className="block text-xs font-bold text-[#3d2817] uppercase tracking-widest mb-2">Email Address</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#a89b8d]">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 </div>
+                <input type="email" name="userEmail" autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Masukkan email anda" className="w-full pl-12 pr-5 py-3.5 bg-[#faf6f1] border border-[#e8dfd4] rounded-xl focus:ring-2 focus:ring-[#c97b4b]/20 focus:border-[#c97b4b] outline-none transition-all text-[#3d2817]" />
+              </div>
+            </motion.div>
+            
+            {/* Input Role */}
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+              <label className="block text-xs font-bold text-[#3d2817] uppercase tracking-widest mb-2">Pilih Peran</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#a89b8d]">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
+                <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full pl-12 pr-5 py-3.5 bg-[#faf6f1] border border-transparent rounded-xl focus:ring-2 focus:ring-[#c97b4b]/20 focus:border-[#c97b4b] outline-none transition-all text-[#3d2817] appearance-none cursor-pointer">
+                  <option value="staff">Staff Kafe (Kasir & Inventaris)</option>
+                  <option value="admin">Owner / Admin (Laporan)</option>
+                </select>
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#a89b8d]">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+            </motion.div>
 
-                <button
-                    type="submit"
-                    className="w-full bg-[#3d2817] hover:bg-[#c97b4b] text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[2px] transition-all shadow-sm"
-                >
-                    Buat Akun Baru
+            {/* Input Password */}
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+              <label className="block text-xs font-bold text-[#3d2817] uppercase tracking-widest mb-2">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#a89b8d]">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                </div>
+                <input type={showPassword ? 'text' : 'password'} name="userPassword" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Buat password yang kuat" className="w-full pl-12 pr-16 py-3.5 bg-[#faf6f1] border border-[#e8dfd4] rounded-xl focus:ring-2 focus:ring-[#c97b4b]/20 focus:border-[#c97b4b] outline-none transition-all text-[#3d2817]" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#a89b8d] hover:text-[#c97b4b] font-medium text-xs uppercase tracking-wider transition-colors">
+                  {showPassword ? "Hide" : "Show"}
                 </button>
-            </form>
-        </div>
-    );
+              </div>
+            </motion.div>
+
+            <motion.button 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+              type="submit" 
+              className="w-full bg-[#3d2817] text-white py-4 rounded-xl text-sm font-bold tracking-widest uppercase hover:bg-[#c97b4b] transition-all transform hover:-translate-y-0.5 shadow-md mt-4"
+            >
+              Buat Akun Baru
+            </motion.button>
+          </form>
+
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+            className="text-center mt-8 border-t border-[#e8dfd4] pt-6"
+          >
+            <p className="text-sm text-[#6b5344]">
+              Sudah memiliki akun?{' '}
+              <span onClick={() => navigate('/login')} className="text-[#c97b4b] hover:text-[#3d2817] font-bold cursor-pointer transition-colors">
+                Masuk di sini
+              </span>
+            </p>
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
 }
