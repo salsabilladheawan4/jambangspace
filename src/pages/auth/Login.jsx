@@ -68,7 +68,7 @@ export default function Login({ onLoginSuccess }) {
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}
           className="absolute bottom-16 left-16 right-16 text-white"
         >
-          <p className="text-4xl font-bold italic mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+          <p className="text-4xl font-bold italic mb-6 leading-tight">
             "Kopi terbaik bermula dari sistem yang terkelola dengan sempurna."
           </p>
           <div className="flex items-center gap-4">
@@ -152,9 +152,9 @@ export default function Login({ onLoginSuccess }) {
               Mulai Shift Kerja
             </motion.button>
             
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-center text-xs text-[#6b5344] mt-8 pt-6 border-t border-[#e8dfd4]">
+            {/* <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-center text-xs text-[#6b5344] mt-8 pt-6 border-t border-[#e8dfd4]">
               Belum terdaftar di sistem? <span onClick={() => navigate('/register')} className="text-[#c97b4b] hover:text-[#3d2817] font-bold cursor-pointer transition-colors">Buat Akun</span>
-            </motion.p>
+            </motion.p> */}
           </form>
         </motion.div>
       </div>

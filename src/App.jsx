@@ -20,6 +20,7 @@ const Forgot = React.lazy(() => import('./pages/auth/Forgot'));     // SUDAH DIT
 const AdminDashboard = React.lazy(() => import('./pages/Admin/AdminDashboard'));
 const AdminLaporan = React.lazy(() => import('./pages/Admin/AdminLaporan'));
 const AdminResep = React.lazy(() => import('./pages/Admin/AdminResep'));
+const AdminStaff = React.lazy(() => import('./pages/Admin/AdminStaff'));
 const StaffDashboard = React.lazy(() => import('./pages/Staff/StaffDashboard'));
 const StaffInventaris = React.lazy(() => import('./pages/Staff/StaffInventaris'));
 const StaffKasir = React.lazy(() => import('./pages/Staff/StaffKasir'));
@@ -133,6 +134,7 @@ function App() {
           <Route path="/kasir" element={<StaffKasir staffName={userName} onDeductStok={handleDeductStok} onAddPenjualan={(data) => setLaporanPenjualan([data, ...laporanPenjualan])} />} />
           <Route path="/laporan" element={<AdminLaporan dataPenjualan={laporanPenjualan} dataBelanja={laporanBelanja} />} />
           <Route path="/resep" element={<AdminResep tabelMenu={menuList} tabelBahanBaku={tabelBahanBaku} tabelResep={tabelResep} />} />
+          <Route path="/staff-data" element={<AdminStaff userRole={userRole} />} />
         </Route>
 
         {/* Rute Otentikasi (Hanya bisa diakses kalau BELUM login) */}

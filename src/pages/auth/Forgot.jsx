@@ -22,7 +22,7 @@ export default function Forgot() {
                     initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}
                     className="absolute bottom-16 left-16 right-16 text-white"
                 >
-                    <p className="text-4xl font-bold italic mb-6 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+                    <p className="text-4xl font-bold italic mb-6 leading-tight">
                         "Setiap tetes berharga. Begitu juga dengan akses Anda."
                     </p>
                     <div>

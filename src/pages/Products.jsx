@@ -68,15 +68,15 @@ export default function Products({ userRole }) {
     };
 
     return (
-        <div className="p-4 md:p-10 font-instrument text-[#3d2817]">
+        <div className="p-4 md:p-10 font-instrument text-[#3d2817] bg-[#faf8f6] min-h-screen">
             <PageHeader title="Product List" breadcrumb={breadcrumb} />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Form Tambah Menu (Hanya Admin) */}
                 {userRole?.toLowerCase() === 'admin' && (
-                    <div className="bg-white p-8 rounded-[24px] border border-[#e8dfd4] shadow-sm h-fit">
-                        <h2 className="text-xl font-bold mb-6 text-[#c97b4b]" style={{ fontFamily: "'Georgia', serif" }}>+ Tambah Menu Baru</h2>
+                    <div className="bg-white p-8 rounded-[32px] border border-transparent hover:border-[#f0eade] shadow-[0_8px_30px_rgb(0,0,0,0.03)] h-fit transition-all">
+                        <h2 className="text-xl font-black mb-6 text-[#3d2817] flex items-center gap-2"><span className="w-8 h-8 rounded-full bg-[#faf6f1] text-[#c97b4b] flex items-center justify-center text-lg">+</span> Tambah Menu</h2>
                         <form onSubmit={handleAddMenu} className="flex flex-col gap-4">
                             <input 
                                 className="p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm focus:outline-none focus:border-[#c97b4b]" 
@@ -97,7 +97,7 @@ export default function Products({ userRole }) {
                                 className="p-3 bg-[#faf6f1] rounded-xl border border-[#e8dfd4] text-sm focus:outline-none focus:border-[#c97b4b]" 
                                 placeholder="Harga (Rp)" value={price} onChange={e => setPrice(e.target.value)} 
                             />
-                            <button type="submit" className="bg-[#3d2817] text-white p-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#c97b4b] transition-all">
+                            <button type="submit" className="bg-[#3d2817] mt-2 text-white p-4 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#c97b4b] hover:shadow-lg transition-all">
                                 Simpan Menu
                             </button>
                         </form>
@@ -106,24 +106,24 @@ export default function Products({ userRole }) {
 
                 {/* Tabel Daftar Menu */}
                 <div className={`${userRole?.toLowerCase() === 'admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
-                    <div className="bg-white overflow-hidden rounded-2xl shadow-sm border border-[#e8dfd4]">
+                    <div className="bg-white overflow-hidden rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-[#f0eade] p-2 md:p-6">
                         <table className="min-w-full divide-y divide-[#e8dfd4]">
-                            <thead className="bg-[#3d2817] text-white text-left text-xs font-semibold uppercase tracking-wider">
-                                <tr>
-                                    <th className="px-6 py-4">Name</th>
-                                    <th className="px-6 py-4">Category</th>
-                                    <th className="px-6 py-4">Price</th>
+                            <thead>
+                                <tr className="text-[#a89b8d] text-[10px] font-black uppercase tracking-widest border-b border-[#e8dfd4]">
+                                    <th className="pb-4 pt-2 px-6 text-left">Nama Menu</th>
+                                    <th className="pb-4 pt-2 px-6 text-left">Kategori</th>
+                                    <th className="pb-4 pt-2 px-6 text-left">Harga</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#e8dfd4]">
+                            <tbody className="divide-y divide-[#faf6f1]">
                                 {menuList.length === 0 ? (
                                     <tr><td colSpan="3" className="px-6 py-8 text-center text-gray-400">Loading atau Menu Kosong...</td></tr>
                                 ) : (
                                     menuList.map((item) => (
-                                        <tr key={item.id} className="hover:bg-[#faf6f1] transition-colors">
-                                            <td className="px-6 py-4 font-bold">{item.title}</td>
-                                            <td className="px-6 py-4 text-[#6b5344]">{item.category}</td>
-                                            <td className="px-6 py-4 font-bold text-[#c97b4b]">
+                                        <tr key={item.id} className="hover:bg-[#faf8f6] transition-colors group">
+                                            <td className="px-6 py-5 font-bold text-sm">{item.title}</td>
+                                            <td className="px-6 py-5"><span className="bg-[#faf6f1] text-[#8b6f47] px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest">{item.category}</span></td>
+                                            <td className="px-6 py-5 font-black text-[#c97b4b]">
                                                 Rp {item.price.toLocaleString("id-ID")}
                                             </td>
                                         </tr>

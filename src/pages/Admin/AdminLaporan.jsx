@@ -10,7 +10,7 @@ export default function AdminLaporan({ dataPenjualan = [], dataBelanja = [] }) {
       <div className="flex items-center gap-4 mb-8">
         <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-[#e8dfd4] flex items-center justify-center text-xl">📄</div>
         <div>
-          <h2 className="text-2xl font-black" style={{ fontFamily: "'Georgia', serif" }}>Laporan & Aktivitas</h2>
+          <h2 className="text-2xl font-black">Laporan & Aktivitas</h2>
           <p className="text-xs text-[#6b5344] mt-1">Pantau seluruh arus kas masuk dan keluar dari staf Anda.</p>
         </div>
       </div>
@@ -32,7 +32,7 @@ export default function AdminLaporan({ dataPenjualan = [], dataBelanja = [] }) {
         </button>
       </div>
 
-      <div className="bg-white border border-[#e8dfd4] shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-3xl overflow-hidden min-h-[400px]">
+      <div className="bg-white border border-[#f0eade] shadow-[0_8px_30px_rgb(0,0,0,0.03)] rounded-[32px] overflow-hidden min-h-[400px] p-2 md:p-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
@@ -44,12 +44,12 @@ export default function AdminLaporan({ dataPenjualan = [], dataBelanja = [] }) {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="text-[#a89b8d] text-[10px] font-black uppercase tracking-widest border-b border-[#e8dfd4]">
-                      <th className="pb-4 px-4">ID Transaksi</th>
-                      <th className="pb-4 px-4">Waktu</th>
-                      <th className="pb-4 px-4 w-1/3">Daftar Menu</th>
-                      <th className="pb-4 px-4 text-center">Total Item</th>
-                      <th className="pb-4 px-4">Total Bayar</th>
-                      <th className="pb-4 px-4">Kasir</th>
+                      <th className="pb-4 pt-2 px-6">ID Transaksi</th>
+                      <th className="pb-4 pt-2 px-6">Waktu</th>
+                      <th className="pb-4 pt-2 px-6 w-1/3">Daftar Menu</th>
+                      <th className="pb-4 pt-2 px-6 text-center">Total Item</th>
+                      <th className="pb-4 pt-2 px-6">Total Bayar</th>
+                      <th className="pb-4 pt-2 px-6">Kasir</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#faf6f1]">
@@ -57,13 +57,13 @@ export default function AdminLaporan({ dataPenjualan = [], dataBelanja = [] }) {
                       <tr><td colSpan="6" className="text-center py-16 text-[#a89b8d] text-xs font-bold">Belum ada data penjualan tercatat.</td></tr>
                     ) : null}
                     {dataPenjualan.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-[#faf6f1] transition-colors group">
-                        <td className="py-5 px-4 text-[#8b6f47] font-bold text-xs whitespace-nowrap">{item.id}</td>
-                        <td className="py-5 px-4 whitespace-nowrap"><span className="font-bold">{item.tanggal}</span> <br/><span className="text-[#a89b8d] text-[10px]">{item.jam}</span></td>
-                        <td className="py-5 px-4 font-bold text-xs max-w-xs break-words leading-relaxed text-[#6b5344]">{item.namaMenu}</td>
-                        <td className="py-5 px-4 text-center font-black bg-[#faf8f6] group-hover:bg-white transition-colors">{item.qty}</td>
-                        <td className="py-5 px-4 text-[#c97b4b] font-black whitespace-nowrap">Rp {item.total.toLocaleString('id-ID')}</td>
-                        <td className="py-5 px-4 whitespace-nowrap">
+                      <tr key={idx} className="hover:bg-[#faf8f6] transition-colors group">
+                        <td className="py-6 px-6 text-[#8b6f47] font-bold text-xs whitespace-nowrap">{item.id}</td>
+                        <td className="py-6 px-6 whitespace-nowrap"><span className="font-bold">{item.tanggal}</span> <br/><span className="text-[#a89b8d] text-[10px]">{item.jam}</span></td>
+                        <td className="py-6 px-6 font-bold text-xs max-w-xs break-words leading-relaxed text-[#6b5344]">{item.namaMenu}</td>
+                        <td className="py-6 px-6 text-center font-black">{item.qty}</td>
+                        <td className="py-6 px-6 text-[#c97b4b] font-black whitespace-nowrap">Rp {item.total.toLocaleString('id-ID')}</td>
+                        <td className="py-6 px-6 whitespace-nowrap">
                           <span className="bg-[#3d2817] text-white px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest">{item.staff}</span>
                         </td>
                       </tr>
@@ -76,11 +76,11 @@ export default function AdminLaporan({ dataPenjualan = [], dataBelanja = [] }) {
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead>
                     <tr className="text-[#a89b8d] text-[10px] font-black uppercase tracking-widest border-b border-[#e8dfd4]">
-                      <th className="pb-4 px-4">Waktu Input</th>
-                      <th className="pb-4 px-4">Bahan Baku (Masuk)</th>
-                      <th className="pb-4 px-4">Jumlah</th>
-                      <th className="pb-4 px-4">Total Biaya</th>
-                      <th className="pb-4 px-4">Penanggung Jawab</th>
+                      <th className="pb-4 pt-2 px-6">Waktu Input</th>
+                      <th className="pb-4 pt-2 px-6">Bahan Baku (Masuk)</th>
+                      <th className="pb-4 pt-2 px-6">Jumlah</th>
+                      <th className="pb-4 pt-2 px-6">Total Biaya</th>
+                      <th className="pb-4 pt-2 px-6">Penanggung Jawab</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#faf6f1]">
@@ -88,12 +88,12 @@ export default function AdminLaporan({ dataPenjualan = [], dataBelanja = [] }) {
                       <tr><td colSpan="5" className="text-center py-16 text-[#a89b8d] text-xs font-bold">Belum ada data belanja pengeluaran.</td></tr>
                     ) : null}
                     {dataBelanja.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-[#faf6f1] transition-colors">
-                        <td className="py-5 px-4 font-medium">{item.tanggal}</td>
-                        <td className="py-5 px-4 font-black text-[#6b5344]">{item.barang}</td>
-                        <td className="py-5 px-4 font-bold bg-[#faf8f6]">{item.jumlah} Unit</td>
-                        <td className="py-5 px-4 text-[#8b6f47] font-black">Rp {item.harga.toLocaleString('id-ID')}</td>
-                        <td className="py-5 px-4">
+                      <tr key={idx} className="hover:bg-[#faf8f6] transition-colors group">
+                        <td className="py-6 px-6 font-medium">{item.tanggal}</td>
+                        <td className="py-6 px-6 font-black text-[#6b5344]">{item.barang}</td>
+                        <td className="py-6 px-6 font-bold">{item.jumlah} Unit</td>
+                        <td className="py-6 px-6 text-[#8b6f47] font-black">Rp {item.harga.toLocaleString('id-ID')}</td>
+                        <td className="py-6 px-6">
                           <span className="bg-[#e8dfd4] text-[#3d2817] px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest">{item.staff}</span>
                         </td>
                       </tr>

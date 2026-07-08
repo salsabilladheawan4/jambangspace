@@ -23,12 +23,12 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
       {/* HEADER NOVELTY STYLE */}
       <motion.div variants={itemAnim} className="bg-white rounded-2xl mb-8 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between p-6 md:px-8">
         <div>
-          <h2 className="text-xl text-gray-500 mb-1">Welcome back, Owner</h2>
+          <h2 className="text-xl text-gray-500 mb-1">Selamat Datang, Pemilik</h2>
           <h1 className="text-2xl font-bold text-gray-800">Jambang Coffee Shop</h1>
         </div>
         <div className="flex items-center gap-10 mt-4 md:mt-0">
           <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-            Shop Status <span className="w-2 h-2 rounded-full bg-green-500 ml-1"></span> <span className="text-gray-800">Online</span>
+            Status Toko <span className="w-2 h-2 rounded-full bg-green-500 ml-1"></span> <span className="text-gray-800">Online</span>
           </div>
         </div>
       </motion.div>
@@ -40,7 +40,7 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
             <div className="w-10 h-10 rounded-full bg-[#fff4ed] text-[#c97b4b] flex items-center justify-center text-lg">
               📈
             </div>
-            <p className="text-sm font-bold text-gray-700">Total Revenue</p>
+            <p className="text-sm font-bold text-gray-700">Total Pendapatan</p>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Rp {totalPendapatan.toLocaleString('id-ID')}</h2>
         </motion.div>
@@ -50,7 +50,7 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
             <div className="w-10 h-10 rounded-full bg-[#f4f1ed] text-[#8b6f47] flex items-center justify-center text-lg">
               📉
             </div>
-            <p className="text-sm font-bold text-gray-700">Total Expenses</p>
+            <p className="text-sm font-bold text-gray-700">Total Pengeluaran</p>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Rp {totalPengeluaran.toLocaleString('id-ID')}</h2>
         </motion.div>
@@ -60,7 +60,7 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
             <div className="w-10 h-10 rounded-full bg-[#ecfdf3] text-[#12b76a] flex items-center justify-center text-lg">
               💰
             </div>
-            <p className="text-sm font-bold text-gray-700">Net Profit</p>
+            <p className="text-sm font-bold text-gray-700">Laba Bersih</p>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Rp {keuntunganBersih.toLocaleString('id-ID')}</h2>
         </motion.div>
@@ -69,14 +69,14 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
       {/* GRAFIK NOVELTY STYLE */}
       <motion.div variants={itemAnim} className="bg-white border border-gray-100 p-8 rounded-2xl shadow-sm">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-gray-800">Revenues VS Sales</h3>
+          <h3 className="text-lg font-bold text-gray-800">Grafik Pendapatan</h3>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
-              <span className="w-2 h-2 rounded-full bg-[#c97b4b]"></span> Revenue
+              <span className="w-2 h-2 rounded-full bg-[#c97b4b]"></span> Pendapatan
             </div>
             <div className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-500 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              Daily
+              Harian
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function AdminDashboard({ dataPenjualan = [], dataBelanja = [] })
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">
             <span className="text-4xl mb-3">📊</span>
-            <span className="text-sm font-bold">No transaction data available</span>
+            <span className="text-sm font-bold">Belum ada data transaksi</span>
           </div>
         )}
       </motion.div>

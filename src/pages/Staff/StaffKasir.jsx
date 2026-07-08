@@ -57,7 +57,7 @@ const MenuCard = ({ item, onAdd }) => {
   const isDrink = !['Snack', 'Rice', 'Dessert'].includes(item.category);
 
   return (
-    <div className="bg-white p-5 rounded-[24px] shadow-sm border border-[#e8dfd4] flex flex-col justify-between">
+    <div className="bg-white p-5 rounded-[32px] border border-transparent hover:border-[#f0eade] shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_40px_rgb(201,123,75,0.08)] transition-all duration-300 flex flex-col justify-between group">
       <div className="flex gap-4 mb-4">
         {/* GAMBAR MENU */}
         <img 
@@ -120,7 +120,7 @@ const MenuCard = ({ item, onAdd }) => {
         )}
       </div>
       
-      <button onClick={handleAdd} className="w-full mt-2 py-3 bg-[#e8dfd4]/40 hover:bg-[#3d2817] text-[#3d2817] hover:text-white rounded-xl text-sm font-bold transition-all shadow-sm">
+      <button onClick={handleAdd} className="w-full mt-4 py-3 bg-[#faf6f1] group-hover:bg-[#3d2817] text-[#3d2817] group-hover:text-white rounded-[16px] text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-sm">
         + Add to Bills
       </button>
     </div>
@@ -220,7 +220,7 @@ export default function StaffKasir({ staffName, onAddPenjualan }) {
         {/* Header Search & Title */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-[#3d2817]" style={{ fontFamily: 'Georgia, serif' }}>Menu Kategori</h1>
+            <h1 className="text-3xl md:text-4xl font-black text-[#3d2817]">Menu Kategori</h1>
             <p className="text-sm text-[#6b5344] mt-1">Pilih pesanan pelanggan dengan cepat.</p>
           </div>
           <div className="relative flex-1 max-w-md">
@@ -241,7 +241,7 @@ export default function StaffKasir({ staffName, onAddPenjualan }) {
             <button
               key={cat.name}
               onClick={() => setSelectedCat(cat.name)}
-              className={`flex flex-col items-center justify-center p-4 md:p-5 rounded-[20px] border-2 min-w-[90px] transition-all duration-300 ${
+              className={`flex flex-col items-center justify-center p-4 md:p-5 rounded-[24px] border-2 min-w-[90px] transition-all duration-300 ${
                 selectedCat === cat.name ? 'bg-[#3d2817] border-[#3d2817] text-white shadow-lg transform -translate-y-1' : 'bg-white border-[#e8dfd4] hover:border-[#c97b4b] text-[#6b5344]'
               }`}
             >
@@ -262,10 +262,10 @@ export default function StaffKasir({ staffName, onAddPenjualan }) {
       </main>
 
       {/* BILLS PANEL KANAN */}
-      <aside className="w-[380px] bg-white border-l border-[#e8dfd4] flex flex-col flex-shrink-0 z-20 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.02)]">
+      <aside className="w-[380px] bg-white rounded-l-[40px] flex flex-col flex-shrink-0 z-20 shadow-[-15px_0_40px_-5px_rgba(0,0,0,0.05)] border-l border-y border-transparent relative overflow-hidden">
         
         {/* Profil Header */}
-        <div className="p-6 border-b border-[#e8dfd4] flex justify-between items-center bg-white">
+        <div className="p-8 border-b border-[#faf6f1] flex justify-between items-center bg-white">
           <h2 className="text-xl font-black text-[#3d2817]">Struk Aktif</h2>
           <ProfileDropdown userName={staffName || "Staff"} userRole="Kasir" />
         </div>
@@ -329,7 +329,7 @@ export default function StaffKasir({ staffName, onAddPenjualan }) {
               </button>
             </div>
             
-            <button onClick={handlePrintBills} className="w-full bg-[#3d2817] text-white py-4 rounded-2xl font-bold hover:bg-[#c97b4b] transition-all shadow-md text-sm">
+            <button onClick={handlePrintBills} className="w-full bg-[#3d2817] text-white py-4 rounded-[20px] font-black uppercase tracking-widest hover:bg-[#c97b4b] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 text-sm">
               Cetak Struk & Bayar
             </button>
           </div>

@@ -13,26 +13,13 @@ import suasanaImg from '../assets/suasana.jpeg';
 import bijiKopiImg from '../assets/bijikopi.jpg';
 
 const LandingPage = () => {
-  const [featuredMenu, setFeaturedMenu] = useState([]);
-  const [teamMembers, setTeamMembers] = useState([]);
-  const [loadingMenu, setLoadingMenu] = useState(true);
-  const navigate = useNavigate();
+    const [teamMembers, setTeamMembers] = useState([]);
+    const navigate = useNavigate();
 
   // --- MENGAMBIL DATA DARI SUPABASE ---
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Ambil 6 Menu dari database dan URUTKAN berdasarkan ID agar posisinya tetap konsisten
-        const { data: menuData, error: menuError } = await supabase
-          .from('menus')
-          .select('*')
-          .order('id', { ascending: true })
-          .limit(6);
-          
-        if (menuData) setFeaturedMenu(menuData);
-        if (menuError) console.error("Error fetching menu:", menuError);
-        setLoadingMenu(false);
-
         // Ambil data Tim dari database
         const { data: teamData, error: teamError } = await supabase
           .from('team_members')
@@ -51,9 +38,6 @@ const LandingPage = () => {
 
   // --- GAMBAR PENDUKUNG ---
   const heroKopi = placeImg; 
-  const gambarPastry = "https://image.qwenlm.ai/public_source/ececd3b0-d800-4b49-91b0-3934b124bc94/193f133b8-8c75-4478-974f-402ecc4044a7.png";
-  const pourOverImg = "https://image.qwenlm.ai/public_source/ececd3b0-d800-4b49-91b0-3934b124bc94/1524d5cd3-2963-478a-9e4f-c6622adc321f.png";
-
   const fallbackTeamImages = [
     ownerjambang,   
     karyawan1, 
@@ -72,14 +56,6 @@ const LandingPage = () => {
     { icon: "🍃", title: "Bahan Segar", desc: "Manajemen inventaris ketat menjamin kesegaran" },
     { icon: "🛋️", title: "Suasana Nyaman", desc: "Ruang yang pas untuk diskusi dan bersantai" },
   ];
-
-  const steps = [
-    { num: "01", title: "Pilih Menu Anda", desc: "Eksplorasi rasa dari biji kopi terbaik." },
-    { num: "02", title: "Diproses oleh Kasir", desc: "Pesanan masuk ke sistem POS kami secara instan." },
-    { num: "03", title: "Diracik Sesuai Resep", desc: "Barista kami menimbang presisi (B.O.M) untuk rasa konsisten." },
-    { num: "04", title: "Nikmati Pesanan", desc: "Disajikan hangat dan penuh cinta untuk Anda." },
-  ];
-
   // --- VARIANTS ANIMASI (Framer Motion) ---
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
@@ -110,7 +86,7 @@ const LandingPage = () => {
           <motion.h1
             initial="hidden" animate="visible" variants={fadeUp}
             className="text-5xl md:text-6xl font-bold text-[#3d2817] leading-tight"
-            style={{ fontFamily: "'Georgia', serif" }}
+           
           >
             Temukan Kopi<br />
             <span className="text-[#c97b4b] inline-block mt-2">Ternikmat</span> Anda
@@ -125,9 +101,7 @@ const LandingPage = () => {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }}
             className="mt-10 flex gap-4 flex-wrap"
           >
-            <a href="#menu" className="bg-[#c97b4b] text-white px-8 py-4 rounded-full text-sm font-bold hover:bg-[#b8683f] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
-              LIHAT MENU KAMI &rarr;
-            </a>
+            <a href="#features" className="bg-[#c97b4b] text-white px-8 py-4 rounded-full text-sm font-bold hover:bg-[#b8683f] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">LIHAT KEUNGGULAN KAMI &rarr;</a>
           </motion.div>
         </div>
         <motion.div 
@@ -140,178 +114,56 @@ const LandingPage = () => {
       </section>
 
       {/* 2. FEATURES BAR */}
-      <section id="features" className="bg-[#3d2817] text-white py-16 relative overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl bg-[#c97b4b] opacity-5 blur-[100px] pointer-events-none"></div>
-
-        <motion.div 
-          variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-          className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 relative z-10"
-        >
-          {features.map((f, i) => (
-            <motion.div 
-              key={i} 
-              variants={fadeUp} 
-              whileHover={{ y: -8, scale: 1.03 }}
-              className="flex flex-col items-center p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#c97b4b]/50 transition-all duration-300 text-center group cursor-pointer shadow-lg hover:shadow-[#c97b4b]/20"
+      <section id="features" className="py-24 bg-[#3d2817] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <motion.h2 
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
+              className="text-4xl md:text-5xl font-bold text-white mb-4"
             >
-              <motion.div 
-                animate={{ y: [0, -10, 0] }} 
-                transition={{ duration: 3 + i * 0.2, repeat: Infinity, ease: "easeInOut" }}
-                className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-4xl mb-5 group-hover:rotate-12 group-hover:bg-[#c97b4b] transition-all duration-500 shadow-inner"
-              >
-                {f.icon}
-              </motion.div>
-              <h4 className="font-bold text-lg mb-2 text-white group-hover:text-[#c97b4b] transition-colors duration-300">{f.title}</h4>
-              <p className="text-sm text-[#c4b5a0] leading-relaxed px-2">{f.desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
+              Kenapa Jambang Space?
+            </motion.h2>
+            <motion.p 
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.1 }}
+              className="text-[#d4cfc4] max-w-2xl mx-auto text-lg"
+            >
+              Kami memberikan pengalaman ngopi terbaik dengan memadukan biji kopi pilihan, keahlian barista, dan suasana yang tak terlupakan.
+            </motion.p>
+          </div>
 
-      {/* 3. MENU DINAMIS */}
-      <section id="menu" className="py-24 bg-[#faf8f6]">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-[#3d2817] leading-tight" style={{ fontFamily: "'Georgia', serif" }}>
-              Kreasi Signature
-            </h2>
-            <p className="mt-4 text-[#6b5344] text-base max-w-xl mx-auto">
-              Dibuat dengan takaran resep yang presisi. Disajikan dengan sukacita langsung dari dapur kami.
-            </p>
-          </motion.div>
-          
           <motion.div 
             variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
           >
-            {loadingMenu ? (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-[#c97b4b] py-20 flex flex-col items-center">
-                <div className="w-16 h-16 border-4 border-[#e8dfd4] border-t-[#c97b4b] rounded-full animate-spin mb-4"></div>
-                <p className="font-medium animate-pulse">Meracik menu spesial...</p>
-              </div>
-            ) : featuredMenu.length > 0 ? (
-              featuredMenu.map((p) => (
-                <motion.div
-                  key={p.id}
-                  variants={fadeUp}
-                  whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                  className="bg-white rounded-[2rem] overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col border border-[#f0eade]"
+            {features.map((f, i) => (
+              <motion.div 
+                key={i} 
+                variants={fadeUp} 
+                whileHover={{ y: -10 }}
+                className="bg-white p-8 rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(201,123,75,0.15)] transition-all duration-300 text-center group border border-transparent hover:border-[#f0eade]"
+              >
+                <motion.div 
+                  className="w-20 h-20 mx-auto rounded-full bg-[#faf6f1] group-hover:bg-[#c97b4b] flex items-center justify-center text-4xl mb-6 transition-colors duration-500 shadow-sm"
                 >
-                  <div className="h-64 overflow-hidden relative bg-[#faf6f1]">
-                    <div className="absolute top-5 right-5 bg-[#c97b4b] text-white text-[10px] font-bold px-4 py-2 rounded-full z-10 uppercase tracking-widest shadow-lg">
-                      {p.category || 'Menu'}
-                    </div>
-                    <img 
-                      src={p.image_url} 
-                      alt={p.title} 
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
-                    />
-                  </div>
-                  <div className="p-8 flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-bold text-[#3d2817] text-xl mb-3 group-hover:text-[#c97b4b] transition-colors">{p.title}</h3>
-                      <p className="text-sm text-[#6b5344] leading-relaxed line-clamp-3">
-                        {p.description || "Nikmati sajian spesial yang diracik khusus menggunakan bahan-bahan segar berkualitas tinggi."}
-                      </p>
-                    </div>
-                    <div className="mt-6 pt-6 border-t border-dashed border-[#e8dfd4] flex justify-between items-center">
-                      <span className="text-[#c97b4b] font-black text-xl">Rp {p.price?.toLocaleString('id-ID')}</span>
-                    </div>
-                  </div>
+                  <span className="group-hover:scale-110 transition-transform duration-300 inline-block">{f.icon}</span>
                 </motion.div>
-              ))
-            ) : (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-500 py-10">
-                Belum ada menu yang tersedia.
-              </div>
-            )}
+                <h4 className="font-bold text-xl mb-3 text-[#3d2817] group-hover:text-[#c97b4b] transition-colors duration-300">{f.title}</h4>
+                <p className="text-sm text-[#6b5344] leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
           </motion.div>
-
-          {/* 4. ARTISAN PASTRIES HIGHLIGHT */}
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={scaleUp}
-            className="grid md:grid-cols-2 gap-0 bg-[#c97b4b] rounded-[2.5rem] overflow-hidden mt-24 shadow-2xl relative"
-          >
-            <div className="p-12 md:p-16 text-white flex flex-col justify-center relative overflow-hidden">
-              <h3 className="text-4xl md:text-5xl font-bold mb-6 relative z-10 leading-tight" style={{ fontFamily: "'Georgia', serif" }}>
-               Pastry &<br />Cemilan Hangat
-              </h3>
-              <p className="text-base text-[#f5e6d3] mb-8 max-w-md relative z-10 leading-relaxed">
-                Dari Croissant mentega hingga dimsum gurih. Diambil langsung dari persediaan segar gudang kami untuk menemani ngopi Anda.
-              </p>
-            </div>
-            <div className="h-72 md:h-auto overflow-hidden relative">
-              <img src={gambarPastry} alt="Pastry Showcase" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 5. HOW WE WORK */}
-      <section className="bg-[#3d4a3e] text-white py-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12 items-center">
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-            className="md:col-span-1"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-6" style={{ fontFamily: "'Georgia', serif" }}>
-              <span className="text-white">Konsistensi</span>
-              <br />
-              <span className="text-[#c97b4b] italic font-medium">dalam Secangkir</span>
-            </h2>
-            <p className="text-base text-[#d4cfc4] mb-8 max-w-sm leading-relaxed">
-              Kami memadukan keahlian barista dengan teknologi manajemen resep (BOM) untuk memastikan rasa yang tidak pernah berubah di setiap pesanan Anda.
-            </p>
-          </motion.div>
-          
-          <div className="md:col-span-2 grid md:grid-cols-2 gap-8 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.6 }}
-              className="relative rounded-[2rem] overflow-hidden h-72 md:h-full shadow-2xl"
-            >
-              <img src={pourOverImg} alt="Pour Over" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-              <div className="absolute bottom-6 left-6 bg-[#3d2817]/90 backdrop-blur text-white px-5 py-3 rounded-2xl text-sm font-bold shadow-xl border border-white/10">
-                Jambang Café
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-              className="space-y-5"
-            >
-              {steps.map((s, i) => (
-                <motion.div
-                  key={i} variants={fadeUp} whileHover={{ x: 10 }}
-                  className="flex items-start gap-5 bg-[#2d3a2e] p-5 rounded-2xl shadow-md hover:shadow-lg transition-all border border-[#445546]"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-[#c97b4b] flex items-center justify-center text-sm font-black flex-shrink-0 shadow-inner">
-                    {s.num}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-base mb-1">{s.title}</h4>
-                    <p className="text-xs text-[#d4cfc4] leading-relaxed">{s.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
         </div>
       </section>
 
       {/* 6. TIM HEBAT & KEUNGGULAN SISTEM */}
-      <section id="teams" className="py-24 bg-[#faf6f1]">
+      <section id="teams" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-12 mb-20 items-center">
+          <div className="grid md:grid-cols-3 gap-12 items-center">
             <motion.div 
               initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
               className="md:col-span-1"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-[#3d2817] leading-tight" style={{ fontFamily: "'Georgia', serif" }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-[#3d2817] leading-tight">
                 Tim Hebat<br />Kami
               </h2>
               <p className="mt-6 text-[#6b5344] text-base leading-relaxed">Bersemangat. Terampil. Berdedikasi untuk menjalankan sistem secara efisien setiap harinya.</p>
@@ -347,14 +199,19 @@ const LandingPage = () => {
               })}
             </motion.div>
           </div>
+        </div>
+      </section>
 
+      {/* 6B. KEUNGGULAN SISTEM */}
+      <section id="system" className="py-24 bg-[#faf6f1]">
+        <div className="max-w-7xl mx-auto px-6">
           {/* Keunggulan Sistem - BENTO GRID MODERN */}
           <motion.div 
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp}
-            className="mt-32 mb-10"
+            className="w-full"
           >
             <div className="text-center mb-14">
-              <h3 className="text-4xl md:text-5xl font-bold text-[#3d2817]" style={{ fontFamily: "'Georgia', serif" }}>
+              <h3 className="text-4xl md:text-5xl font-bold text-[#3d2817]">
                 Keunggulan Sistem
               </h3>
               <p className="mt-4 text-[#6b5344] max-w-xl mx-auto text-base leading-relaxed">
@@ -432,7 +289,7 @@ const LandingPage = () => {
                 </svg>
               </div>
               
-              <h3 className="text-4xl md:text-5xl font-bold mb-4 relative z-10" style={{ fontFamily: "'Georgia', serif" }}>Jam Buka</h3>
+              <h3 className="text-4xl md:text-5xl font-bold mb-4 relative z-10">Jam Buka</h3>
               
               <div className="relative z-10">
                 <p className="text-sm text-[#f5e6d3] font-bold uppercase tracking-widest mb-1">Senin - Minggu</p>
@@ -453,7 +310,7 @@ const LandingPage = () => {
                 </svg>
               </div>
               
-              <h3 className="text-4xl md:text-5xl font-bold text-[#3d2817] mb-4 relative z-10" style={{ fontFamily: "'Georgia', serif" }}>Lokasi Kami</h3>
+              <h3 className="text-4xl md:text-5xl font-bold text-[#3d2817] mb-4 relative z-10">Lokasi Kami</h3>
               
               <div className="relative z-10">
                 <p className="text-lg text-[#6b5344] leading-relaxed font-medium mb-4">
@@ -489,7 +346,7 @@ const LandingPage = () => {
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
           className="relative z-10 px-6 max-w-3xl mx-auto"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6" style={{ fontFamily: "'Georgia', serif" }}>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Siap Mengelola Jambang Space?
           </h2>
           <p className="text-[#d4cfc4] text-base md:text-lg mb-10 leading-relaxed font-medium">
