@@ -1,15 +1,10 @@
 import React from 'react';
-import NavbarGuest from '../components/NavbarGuest';
-import FooterGuest from '../components/FooterGuest';
 import LandingPage from '../pages/LandingPage';
 
-const GuestLayout = ({ children }) => {
+const GuestLayout = () => {
   return (
     <div className="min-h-screen bg-[#faf6f1] font-sans">
-      <NavbarGuest />
-      <main>
-        <LandingPage/>
-      </main>
+      <LandingPage/>
     </div>
   );
 };

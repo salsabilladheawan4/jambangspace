@@ -1,361 +1,462 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { supabase } from '../Services/supabaseClient';
+import heroBgImg from '../assets/WhatsApp Image 2026-06-29 at 15.14.21 (1).jpeg';
 import placeImg from '../assets/place.jpeg';
-import imgKeunggulan1 from '../assets/WhatsApp Image 2026-06-29 at 15.14.19.jpeg';
-import imgKeunggulan2 from '../assets/WhatsApp Image 2026-06-29 at 15.14.20 (1).jpeg';
-import imgKeunggulan3 from '../assets/WhatsApp Image 2026-06-29 at 15.14.21 (1).jpeg';
-import ownerjambang from '../assets/ownerjambang.jpeg';
 import karyawan1 from '../assets/karyawan1.jpeg';
 import karyawan2 from '../assets/karyawan2.jpeg';
+import ownerjambang from '../assets/ownerjambang.jpeg';
 import suasanaImg from '../assets/suasana.jpeg';
 import bijiKopiImg from '../assets/bijikopi.jpg';
+import logo from '../assets/logo.png';
+import menu1 from '../assets/menu1.png';
+import menu2 from '../assets/menu2.png';
+import menu3 from '../assets/menu3.png';
+
+// --- ANIMATION VARIANTS ---
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const slideLeft = {
+  hidden: { opacity: 0, x: -50 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } }
+};
+
+const slideRight = {
+  hidden: { opacity: 0, x: 50 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } }
+};
 
 const LandingPage = () => {
-    const [teamMembers, setTeamMembers] = useState([]);
-    const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = React.useState(false);
 
-  // --- MENGAMBIL DATA DARI SUPABASE ---
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Ambil data Tim dari database
-        const { data: teamData, error: teamError } = await supabase
-          .from('team_members')
-          .select('*')
-          .order('id', { ascending: true });
-          
-        if (teamData) setTeamMembers(teamData);
-        if (teamError) console.error("Error fetching team:", teamError);
-      } catch (error) {
-        console.error("Unexpected error:", error);
-        setLoadingMenu(false);
-      }
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
     };
-    fetchData();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- GAMBAR PENDUKUNG ---
-  const heroKopi = placeImg; 
-  const fallbackTeamImages = [
-    ownerjambang,   
-    karyawan1, 
-    karyawan2    
-  ];
-
-  const displayTeam = teamMembers.length > 0 ? teamMembers : [
-    { id: 1, name: "Admin / Owner", role: "Pengelola Operasional", quote: "Memantau profit dan memastikan stok selalu aman untuk kepuasan pelanggan." },
-    { id: 2, name: "Staff Kasir", role: "Pelayanan Pelanggan", quote: "Transaksi cepat dan presisi untuk pengalaman ngopi yang luar biasa." },
-    { id: 3, name: "Staff Gudang", role: "Manajemen Inventaris", quote: "Menjaga ketersediaan bahan baku agar setiap resep tercipta sempurna." }
-  ];
-
-  const features = [
-    { icon: "☕", title: "Biji Kopi Pilihan", desc: "Kualitas terbaik dari petani lokal & dunia" },
-    { icon: "👨‍🍳", title: "Barista Ahli", desc: "Dirangkai dengan teknik dan presisi tinggi" },
-    { icon: "🍃", title: "Bahan Segar", desc: "Manajemen inventaris ketat menjamin kesegaran" },
-    { icon: "🛋️", title: "Suasana Nyaman", desc: "Ruang yang pas untuk diskusi dan bersantai" },
-  ];
-  // --- VARIANTS ANIMASI (Framer Motion) ---
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15
-      }
-    }
-  };
-
-  const scaleUp = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } }
-  };
-
   return (
-    <div className="w-full font-sans text-[#3d2817]">
+    <div className="w-full font-['Inter',sans-serif] bg-[#F8F1E7] text-[#332218] overflow-hidden">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:wght@300;400;500;600&display=swap');
+        .font-serif { font-family: 'Playfair Display', serif; }
+      `}</style>
       
       {/* 1. HERO SECTION */}
-      <section id="home" className="grid md:grid-cols-2 min-h-[600px]">
-        <div className="bg-[#faf6f1] p-12 md:p-16 flex flex-col justify-center">
-          <motion.h1
-            initial="hidden" animate="visible" variants={fadeUp}
-            className="text-5xl md:text-6xl font-bold text-[#3d2817] leading-tight"
-           
+      <section className="relative w-full h-screen min-h-[700px] flex flex-col justify-between overflow-hidden">
+        <motion.div 
+          initial={{ scale: 1.1, opacity: 0 }} 
+          animate={{ scale: 1, opacity: 1 }} 
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0 bg-black"
+        >
+          <img src={heroBgImg} alt="Hero" className="w-full h-full object-cover opacity-70" />
+        </motion.div>
+        
+        {/* Navbar */}
+        <motion.nav 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className={`fixed top-0 left-0 z-50 w-full flex items-center justify-between px-8 transition-all duration-300 text-white text-xs tracking-wider uppercase font-medium ${
+            isScrolled ? "py-4 bg-black/80 backdrop-blur-md border-b border-white/10 shadow-lg" : "py-6 bg-transparent"
+          }`}
+        >
+          <div className="flex-1 flex gap-8 hidden md:flex">
+            <a href="#about" className="hover:text-gray-300 transition">About</a>
+            <a href="#menu" className="hover:text-gray-300 transition">Menu</a>
+            <a href="#locations" className="hover:text-gray-300 transition">Locations</a>
+            <a href="#gallery" className="hover:text-gray-300 transition">Gallery</a>
+          </div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-center">
+            <img src={logo} alt="Jambang Logo" className={`w-auto brightness-0 invert opacity-90 hover:opacity-100 transition-all duration-300 ${isScrolled ? "h-8" : "h-10"}`} />
+          </div>
+          <div className="flex-1 flex justify-end gap-8 hidden md:flex">
+            <Link to="/login" className="hover:text-gray-300 transition font-bold">Login</Link>
+          </div>
+        </motion.nav>
+
+        {/* Hero Content */}
+        <div className="relative z-10 px-8 md:px-16 pb-12 w-full flex flex-col justify-end h-full max-w-7xl mx-auto">
+          <h1 className="text-white text-6xl md:text-[9rem] leading-[0.9] font-serif mb-12">
+            <motion.span
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: { transition: { staggerChildren: 0.1, delayChildren: 0.8 } },
+                hidden: {},
+              }}
+            >
+              {"Coffee".split("").map((char, index) => (
+                <motion.span
+                  key={`c-${index}`}
+                  variants={{
+                    hidden: { opacity: 0, display: "none" },
+                    visible: { opacity: 1, display: "inline" }
+                  }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </motion.span>
+            <br/> 
+            <motion.span 
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: { transition: { staggerChildren: 0.1, delayChildren: 1.5 } },
+                hidden: {},
+              }}
+              className="italic inline-block"
+            >
+              {"That Slaps.".split("").map((char, index) => (
+                <motion.span
+                  key={`t-${index}`}
+                  variants={{
+                    hidden: { opacity: 0, display: "none" },
+                    visible: { opacity: 1, display: "inline" }
+                  }}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))}
+            </motion.span>
+          </h1>
+          
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 2.8 }}
+            className="flex flex-col md:flex-row justify-between items-start md:items-end border-t border-white/30 pt-6 gap-6 md:gap-0"
           >
-            Temukan Kopi<br />
-            <span className="text-[#c97b4b] inline-block mt-2">Ternikmat</span> Anda
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-6 text-[#6b5344] max-w-md leading-relaxed text-lg"
-          >
-            Menyajikan kopi artisan dan makanan lezat yang dikelola dengan sistem profesional untuk menjamin kesegaran dan konsistensi rasa setiap harinya.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-10 flex gap-4 flex-wrap"
-          >
-            <a href="#features" className="bg-[#c97b4b] text-white px-8 py-4 rounded-full text-sm font-bold hover:bg-[#b8683f] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">LIHAT KEUNGGULAN KAMI &rarr;</a>
+            <div className="text-white/80 text-xs max-w-[250px] leading-relaxed uppercase tracking-wider font-semibold">
+              COFFEE, MOCKTAILS, & DELICIOUS MEALS <br/> PEKANBARU, RIAU.
+            </div>
+            
+            <div className="flex gap-4">
+              <a href="#menu" className="px-8 py-3 rounded-full border border-white text-white text-sm uppercase tracking-wide hover:bg-white hover:text-black transition duration-300">Our Menu</a>
+              <a href="https://maps.app.goo.gl/WLTHqRmmNhpWJc2F6" target="_blank" rel="noopener noreferrer" className="px-8 py-3 rounded-full border border-white text-white text-sm uppercase tracking-wide hover:bg-white hover:text-black transition duration-300">Find Us</a>
+            </div>
+            
+            <div className="text-white/80 text-xs md:text-right max-w-[250px] leading-relaxed uppercase tracking-wider font-semibold">
+              WE'RE NOT JUST A CAFE.<br/>WE'RE A HEADQUARTERS.
+            </div>
           </motion.div>
         </div>
+      </section>
+
+      {/* 2. ABOUT SECTION */}
+      <section id="about" className="py-24 md:py-32 px-8 bg-[#F8F1E7] relative overflow-hidden">
+         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16 md:gap-24 relative z-10">
+            <motion.div 
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
+              variants={slideLeft}
+              className="w-full md:w-1/2 flex justify-center md:justify-end pr-0 md:pr-12"
+            >
+               <motion.div 
+                 whileHover={{ scale: 1.02, y: -5 }} transition={{ duration: 0.5 }}
+                 className="w-full max-w-[380px] aspect-[4/5] rounded-t-full rounded-b-2xl overflow-hidden shadow-2xl relative border-[8px] border-white"
+               >
+                 <img src={karyawan2} alt="Jambang Barista" className="w-full h-full object-cover" />
+                 
+                 {/* Small overlay badge for aesthetics */}
+                 <div className="absolute bottom-6 -right-2 bg-[#C04A25] text-white text-[10px] uppercase tracking-widest font-bold py-3 px-6 rounded-l-full shadow-lg">
+                    Est. 2026
+                 </div>
+               </motion.div>
+            </motion.div>
+            
+            <motion.div 
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }}
+              variants={slideRight}
+              className="w-full md:w-1/2 max-w-lg mt-8 md:mt-0"
+            >
+               <h2 className="text-[#C04A25] text-5xl md:text-7xl font-serif leading-[1.1] mb-8">
+                 Our Coffee, <br/> <span className="italic">Our Rules.</span>
+               </h2>
+               <p className="text-[#332218] text-base md:text-lg leading-relaxed font-medium mb-8">
+                 Kami adalah ruang singgah ternyaman di Pekanbaru. Tempat di mana racikan kopi yang jujur bertemu dengan hidangan lezat yang menggugah selera. Nikmati Kopi Susu Jambang andalan kami, hidangan utama yang mengenyangkan, dan suasana santai yang membuat Anda betah berlama-lama.
+               </p>
+               <a href="#about" className="text-sm font-bold tracking-widest uppercase border-b-2 border-[#C04A25] pb-1 hover:text-[#C04A25] transition inline-block">Read Our Story</a>
+            </motion.div>
+         </div>
+      </section>
+
+      {/* 3. MENU SECTION */}
+      <section id="menu" className="py-24 md:py-40 bg-[#BA4A22] text-white relative overflow-hidden">
+        {/* Massive Background Text */}
         <motion.div 
-          initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}
-          className="relative overflow-hidden h-[400px] md:h-auto"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 0.1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5 }}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200%] md:w-[150%] text-center pointer-events-none flex flex-col leading-[0.8] select-none"
         >
-          <img src={heroKopi} alt="Biji Kopi Jambang" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+          <span className="text-[12rem] md:text-[25rem] font-serif italic whitespace-nowrap">our menu</span>
+          <span className="text-[12rem] md:text-[25rem] font-serif italic whitespace-nowrap">our menu</span>
+        </motion.div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-8">
+           <motion.div 
+             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+             className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-24 border-b border-white/20 pb-8 gap-4 md:gap-0"
+           >
+             <h2 className="text-5xl md:text-7xl font-serif">What We Serve.</h2>
+             <p className="text-sm max-w-[200px] md:text-right opacity-80 uppercase tracking-widest font-semibold">Our classic & signature beverages crafted for you.</p>
+           </motion.div>
+           
+           <div className="flex flex-col md:flex-row gap-16 md:gap-24 items-center">
+              {/* Left: Text Menu */}
+              <motion.div 
+                initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
+                className="w-full md:w-1/2 flex flex-col gap-10"
+              >
+                 <motion.div variants={fadeUp} className="group border-b border-white/20 pb-6">
+                    <div className="flex justify-between items-end mb-2">
+                      <h3 className="text-3xl font-serif group-hover:text-[#F8F1E7]/80 transition">Kopi Susu Jambang</h3>
+                    </div>
+                    <p className="text-sm opacity-80 leading-relaxed max-w-md">Kopi susu aren yang gurih, creamy, dan menyegarkan.</p>
+                 </motion.div>
+
+                 <motion.div variants={fadeUp} className="group border-b border-white/20 pb-6">
+                    <div className="flex justify-between items-end mb-2">
+                      <h3 className="text-3xl font-serif group-hover:text-[#F8F1E7]/80 transition">Americano</h3>
+                    </div>
+                    <p className="text-sm opacity-80 leading-relaxed max-w-md">Espresso Arabica Single Origin yang membangkitkan fokus.</p>
+                 </motion.div>
+
+                 <motion.div variants={fadeUp} className="group border-b border-white/20 pb-6">
+                    <div className="flex justify-between items-end mb-2">
+                      <h3 className="text-3xl font-serif group-hover:text-[#F8F1E7]/80 transition">Coffee Beer</h3>
+                      <span className="text-[10px] md:text-xs uppercase tracking-widest px-2 py-1 bg-white text-[#BA4A22] font-bold rounded">Signature</span>
+                    </div>
+                    <p className="text-sm opacity-80 leading-relaxed max-w-md">Mocktail kopi dengan sensasi soda yang unik.</p>
+                 </motion.div>
+
+                 <motion.div variants={fadeUp} className="group border-b border-white/20 pb-6">
+                    <div className="flex justify-between items-end mb-2">
+                      <h3 className="text-3xl font-serif group-hover:text-[#F8F1E7]/80 transition">Nasgor Seafood</h3>
+                    </div>
+                    <p className="text-sm opacity-80 leading-relaxed max-w-md">Nasi goreng smoky dengan udang & telur orak-arik.</p>
+                 </motion.div>
+
+                 <motion.div variants={fadeUp} className="group border-b border-white/20 pb-6">
+                    <div className="flex justify-between items-end mb-2">
+                      <h3 className="text-3xl font-serif group-hover:text-[#F8F1E7]/80 transition">Butter Rice</h3>
+                    </div>
+                    <p className="text-sm opacity-80 leading-relaxed max-w-md">Butter rice gurih disajikan dengan paduan sambal matah.</p>
+                 </motion.div>
+                 
+                 <motion.button variants={fadeUp} className="mt-4 self-start px-10 py-3.5 rounded-full border border-white text-sm uppercase tracking-wider font-bold hover:bg-white hover:text-[#BA4A22] transition">Full Menu</motion.button>
+              </motion.div>
+              
+              {/* Right: Collage */}
+              <motion.div 
+                initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+                className="w-full md:w-1/2 relative h-[500px] md:h-[700px] flex justify-center items-center"
+              >
+                 <motion.div 
+                   whileHover={{ scale: 1.05, zIndex: 30 }} transition={{ duration: 0.4 }}
+                   className="absolute top-4 right-10 md:top-10 md:right-0 w-[200px] md:w-[300px] aspect-[3/4] bg-white p-3 shadow-2xl z-10 rotate-6"
+                 >
+                    <img src={menu1} alt="Menu 1" className="w-full h-full object-cover" />
+                 </motion.div>
+
+                 <motion.div 
+                   whileHover={{ scale: 1.05, zIndex: 30 }} transition={{ duration: 0.4 }}
+                   className="absolute bottom-10 left-0 md:left-0 w-[220px] md:w-[320px] aspect-[4/5] bg-white p-3 shadow-2xl z-20 -rotate-3"
+                 >
+                    <img src={menu2} alt="Menu 2" className="w-full h-full object-cover" />
+                 </motion.div>
+                 
+                 <motion.div 
+                   whileHover={{ scale: 1.05, zIndex: 30 }} transition={{ duration: 0.4 }}
+                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[180px] md:w-[250px] aspect-[4/5] bg-white p-2 shadow-2xl z-25 -rotate-12"
+                 >
+                    <img src={menu3} alt="Menu 3" className="w-full h-full object-cover" />
+                 </motion.div>
+              </motion.div>
+           </div>
+        </div>
+      </section>
+
+      {/* 4. HEADQUARTERS SECTION */}
+      <section id="locations" className="relative w-full py-32 md:py-48 flex items-center overflow-hidden">
+        <motion.div 
+          initial={{ scale: 1.1 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5 }}
+          className="absolute inset-0 bg-black"
+        >
+          <img src={suasanaImg} alt="Interior" className="w-full h-full object-cover opacity-60" />
+        </motion.div>
+        <motion.div 
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+          className="relative z-10 w-full max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-12"
+        >
+           <div>
+             <h2 className="text-white text-5xl md:text-8xl font-serif leading-[1.1]">
+               Not a Café. <br/> <span className="italic">A Headquarters.</span>
+             </h2>
+             <p className="text-white/80 mt-6 max-w-md leading-relaxed text-lg">A space built for ideas, productivity, and connecting with those who appreciate the grind.</p>
+           </div>
+           
+           <div className="flex flex-col md:items-end gap-6">
+             <a href="https://maps.app.goo.gl/WLTHqRmmNhpWJc2F6" target="_blank" rel="noopener noreferrer" className="px-12 py-4 bg-white text-black rounded-full text-sm font-bold uppercase tracking-wider hover:bg-[#F8F1E7] transition inline-block">Visit Us</a>
+             <p className="text-white/80 text-xs tracking-widest font-bold">OPEN DAILY: 10:00 - 24:00 WIB</p>
+           </div>
         </motion.div>
       </section>
 
-      {/* 2. FEATURES BAR */}
-      <section id="features" className="py-24 bg-[#3d2817] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <motion.h2 
-              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-              className="text-4xl md:text-5xl font-bold text-white mb-4"
-            >
-              Kenapa Jambang Space?
-            </motion.h2>
-            <motion.p 
-              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.1 }}
-              className="text-[#d4cfc4] max-w-2xl mx-auto text-lg"
-            >
-              Kami memberikan pengalaman ngopi terbaik dengan memadukan biji kopi pilihan, keahlian barista, dan suasana yang tak terlupakan.
-            </motion.p>
-          </div>
-
-          <motion.div 
-            variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
-          >
-            {features.map((f, i) => (
-              <motion.div 
-                key={i} 
-                variants={fadeUp} 
-                whileHover={{ y: -10 }}
-                className="bg-white p-8 rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(201,123,75,0.15)] transition-all duration-300 text-center group border border-transparent hover:border-[#f0eade]"
-              >
-                <motion.div 
-                  className="w-20 h-20 mx-auto rounded-full bg-[#faf6f1] group-hover:bg-[#c97b4b] flex items-center justify-center text-4xl mb-6 transition-colors duration-500 shadow-sm"
-                >
-                  <span className="group-hover:scale-110 transition-transform duration-300 inline-block">{f.icon}</span>
-                </motion.div>
-                <h4 className="font-bold text-xl mb-3 text-[#3d2817] group-hover:text-[#c97b4b] transition-colors duration-300">{f.title}</h4>
-                <p className="text-sm text-[#6b5344] leading-relaxed">{f.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 6. TIM HEBAT & KEUNGGULAN SISTEM */}
-      <section id="teams" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-12 items-center">
-            <motion.div 
-              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-              className="md:col-span-1"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-[#3d2817] leading-tight">
-                Tim Hebat<br />Kami
+      {/* 5. GALLERY SECTION */}
+      <section id="gallery" className="pt-24 md:pt-32 bg-[#F8F1E7] relative overflow-hidden flex flex-col justify-between">
+        <div className="max-w-7xl mx-auto px-8 relative z-10 w-full">
+           <motion.div 
+             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
+             className="flex flex-col md:flex-row justify-between items-start mb-16 gap-6 md:gap-0"
+           >
+              <h2 className="text-[#C04A25] text-5xl md:text-6xl font-serif max-w-sm leading-tight">
+                 Our Space, Your Vibe.
               </h2>
-              <p className="mt-6 text-[#6b5344] text-base leading-relaxed">Bersemangat. Terampil. Berdedikasi untuk menjalankan sistem secara efisien setiap harinya.</p>
-            </motion.div>
-            
-            <motion.div 
-              variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-              className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-            >
-              {displayTeam.map((member, i) => {
-                let finalImage = member.image_url;
-                if (!finalImage || typeof finalImage !== 'string' || finalImage.includes('unsplash') || finalImage.includes('ui-avatars')) {
-                    finalImage = fallbackTeamImages[i % 3];
-                }
-
-                return (
-                  <motion.div
-                    key={member.id || i} variants={fadeUp} whileHover={{ y: -12 }}
-                    className="relative rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group h-[400px] border border-white/20"
-                  >
-                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style={{ backgroundImage: `url(${finalImage})` }}></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#20150d] via-[#20150d]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300"></div>
-                    
-                    <div className="absolute inset-0 p-8 flex flex-col justify-end text-center z-10 transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
-                      <h3 className="font-bold text-white text-2xl mb-1 drop-shadow-md">{member.name}</h3>
-                      <p className="text-[11px] text-[#c97b4b] font-black tracking-widest uppercase mb-4 drop-shadow-md bg-white/10 backdrop-blur-sm self-center px-4 py-1.5 rounded-full">{member.role}</p>
-                      <p className="text-sm text-gray-200 italic leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 px-2">
-                        "{member.quote}"
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6B. KEUNGGULAN SISTEM */}
-      <section id="system" className="py-24 bg-[#faf6f1]">
-        <div className="max-w-7xl mx-auto px-6">
-          {/* Keunggulan Sistem - BENTO GRID MODERN */}
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp}
-            className="w-full"
-          >
-            <div className="text-center mb-14">
-              <h3 className="text-4xl md:text-5xl font-bold text-[#3d2817]">
-                Keunggulan Sistem
-              </h3>
-              <p className="mt-4 text-[#6b5344] max-w-xl mx-auto text-base leading-relaxed">
-                Inovasi teknologi di balik layar untuk memastikan kecepatan, akurasi, dan kualitas di setiap pesanan Anda.
+              <p className="text-sm max-w-[250px] md:text-right font-medium text-[#332218] uppercase tracking-widest leading-relaxed">
+                Tangkapan momen dan sudut favorit di markas kami.
               </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 relative z-10">
+           </motion.div>
+           
+           <motion.div 
+             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
+             className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 relative z-20 pb-32"
+           >
+              {/* Photo 1 */}
+              <motion.div variants={fadeUp} className="flex flex-col items-center group overflow-hidden h-[300px] md:h-[450px]">
+                 <div className="w-full h-full relative overflow-hidden shadow-xl hover:-translate-y-2 transition-transform duration-500 rounded">
+                    <img src={heroBgImg} alt="Vibe 1" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                 </div>
+              </motion.div>
               
-              {/* Card 1: Kasir POS Cerdas (Besar, Kiri) */}
-              <motion.div 
-                whileHover={{ y: -8 }}
-                className="md:col-span-2 md:row-span-2 relative rounded-[2.5rem] overflow-hidden group shadow-2xl border border-white/50 min-h-[450px] flex flex-col justify-end p-10 md:p-12"
-              >
-                <div className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" style={{ backgroundImage: `url(${imgKeunggulan1})` }}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
-                <div className="relative z-10 max-w-lg">
-                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-3xl mb-6 shadow-xl border border-white/20 text-white group-hover:rotate-12 transition-transform duration-300">💻</div>
-                  <h4 className="font-bold text-3xl md:text-4xl mb-4 text-white drop-shadow-lg">Kasir POS Cerdas</h4>
-                  <p className="text-base text-gray-200 leading-relaxed font-medium">
-                    Pencatatan pesanan instan yang otomatis terintegrasi dengan dapur dan memotong stok gudang secara presisi sesuai resep (BOM). Nikmati pelayanan cepat tanpa kompromi.
-                  </p>
-                </div>
+              {/* Photo 2 */}
+              <motion.div variants={fadeUp} className="flex flex-col items-center group overflow-hidden h-[300px] md:h-[450px] md:mt-16">
+                 <div className="w-full h-full relative overflow-hidden shadow-xl hover:-translate-y-2 transition-transform duration-500 rounded">
+                    <img src={placeImg} alt="Vibe 2" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                 </div>
               </motion.div>
 
-              {/* Card 2: Manajemen Inventaris (Kanan Atas) */}
-              <motion.div 
-                whileHover={{ y: -8 }}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} transition={{ delay: 0.1 }} variants={fadeUp}
-                className="relative rounded-[2.5rem] overflow-hidden group shadow-xl border border-white/50 min-h-[200px] flex flex-col justify-end p-8"
-              >
-                <img src={bijiKopiImg} alt="Inventaris" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 z-0" />
-                <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors z-0"></div>
-                <div className="relative z-10 h-full flex flex-col justify-end">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-2xl mb-4 shadow-lg border border-white/20 text-white group-hover:-rotate-12 transition-transform duration-300">📦</div>
-                  <h4 className="font-bold text-xl mb-2 text-white drop-shadow-md">Manajemen Inventaris</h4>
-                  <p className="text-sm text-gray-200 leading-relaxed">Pemantauan stok bahan baku secara real-time untuk mencegah kehabisan stok.</p>
-                </div>
+              {/* Photo 3 */}
+              <motion.div variants={fadeUp} className="flex flex-col items-center group overflow-hidden h-[300px] md:h-[450px]">
+                 <div className="w-full h-full relative overflow-hidden shadow-xl hover:-translate-y-2 transition-transform duration-500 rounded">
+                    <img src={suasanaImg} alt="Vibe 3" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                 </div>
               </motion.div>
-
-              {/* Card 3: Laporan Real-Time (Kanan Bawah) */}
-              <motion.div 
-                whileHover={{ y: -8 }}
-                initial="hidden" whileInView="visible" viewport={{ once: true }} transition={{ delay: 0.2 }} variants={fadeUp}
-                className="relative rounded-[2.5rem] overflow-hidden group shadow-xl border border-white/50 min-h-[200px] flex flex-col justify-end p-8"
-              >
-                <img src={placeImg} alt="Laporan" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 z-0" />
-                <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors z-0"></div>
-                <div className="relative z-10 h-full flex flex-col justify-end">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-2xl mb-4 shadow-lg border border-white/20 text-white group-hover:-rotate-12 transition-transform duration-300">📊</div>
-                  <h4 className="font-bold text-xl mb-2 text-white drop-shadow-md">Laporan Real-Time</h4>
-                  <p className="text-sm text-gray-200 leading-relaxed">Analisis pergerakan transaksi, pemasukan, dan pengeluaran secara akurat.</p>
-                </div>
-              </motion.div>
-
-            </div>
-          </motion.div>
+           </motion.div>
         </div>
+        
+        {/* Massive Background Text */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1.2 }}
+          className="w-full overflow-hidden absolute bottom-[-5%] left-0 right-0 pointer-events-none"
+        >
+          <div className="font-serif text-[15rem] md:text-[25rem] leading-[0.75] text-[#C04A25] uppercase font-black text-center whitespace-nowrap">
+            JAMBANG VIBES
+          </div>
+        </motion.div>
       </section>
 
-      {/* 7. INFO OPERASIONAL */}
-      <section className="py-24 bg-white relative">
-        <div className="max-w-6xl mx-auto px-6">
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp}
-            className="grid md:grid-cols-2 rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-[#f0eade]"
-          >
-            {/* Jam Buka */}
-            <div className="bg-[#c97b4b] text-white p-10 md:p-16 flex flex-col justify-center relative overflow-hidden group">
-              <div className="absolute -right-20 -top-20 w-72 h-72 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 ease-in-out pointer-events-none"></div>
-              
-              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-8 shadow-inner transform group-hover:-translate-y-1 transition-transform duration-500">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              
-              <h3 className="text-4xl md:text-5xl font-bold mb-4 relative z-10">Jam Buka</h3>
-              
-              <div className="relative z-10">
-                <p className="text-sm text-[#f5e6d3] font-bold uppercase tracking-widest mb-1">Senin - Minggu</p>
-                <p className="text-4xl md:text-5xl font-black tracking-tight drop-shadow-md">
-                  10:00 - 24:00 <span className="text-xl font-bold text-[#f5e6d3] ml-1">WIB</span>
-                </p>
-              </div>
-            </div>
+      {/* 6. TESTIMONIAL SECTION */}
+      <section className="py-24 md:py-40 bg-[#BA4A22] relative flex justify-center items-center overflow-hidden min-h-[700px] md:min-h-[900px]">
+        {/* Center Portrait */}
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}
+          className="relative z-10 w-[280px] md:w-[400px] h-[350px] md:h-[500px] rounded-t-full overflow-hidden shadow-2xl border-b-0 border-4 border-[#BA4A22]/20 mt-16 md:mt-0"
+        >
+           <img src={ownerjambang} alt="Barista Portrait" className="w-full h-full object-cover" />
+        </motion.div>
+        
+        {/* Floating Quotes - Responsive Positioning */}
+        <motion.div 
+          initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }}
+          className="absolute z-20 top-16 md:top-32 left-4 md:left-24 max-w-[200px] md:max-w-[280px] text-white"
+        >
+           <span className="text-6xl font-serif opacity-30 absolute -top-8 -left-6">"</span>
+           <p className="font-serif text-2xl md:text-3xl leading-tight">I came for one cup, left with a week's worth of beans.</p>
+           <div className="flex items-center gap-3 mt-4">
+             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+                <img src={karyawan1} alt="User" className="w-full h-full object-cover" />
+             </div>
+             <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Sarah T.</span>
+           </div>
+        </motion.div>
 
-            {/* Lokasi */}
-            <div className="bg-[#faf6f1] p-10 md:p-16 flex flex-col justify-center relative overflow-hidden group">
-              <div className="absolute -left-20 -bottom-20 w-72 h-72 bg-[#c97b4b] opacity-[0.03] rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 ease-in-out pointer-events-none"></div>
-              
-              <div className="w-16 h-16 rounded-2xl bg-[#e8dfd4] text-[#c97b4b] flex items-center justify-center mb-8 shadow-inner transform group-hover:-translate-y-1 transition-transform duration-500">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              
-              <h3 className="text-4xl md:text-5xl font-bold text-[#3d2817] mb-4 relative z-10">Lokasi Kami</h3>
-              
-              <div className="relative z-10">
-                <p className="text-lg text-[#6b5344] leading-relaxed font-medium mb-4">
-                  Jl. Kaharudin Nasution, Marpoyan,<br/>Simpang Tiga, Pekanbaru, Riau.
-                </p>
-                <div className="flex items-center gap-2 text-sm font-bold text-[#c97b4b] bg-[#c97b4b]/10 py-2.5 px-4 rounded-xl w-fit mb-8">
-                  <span className="text-lg">📍</span> Lokasi di pinggir jalan utama
-                </div>
-                
-                <a 
-                  href="https://maps.app.goo.gl/xwBAFrxVrL2yuvJCA" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-[#3d2817] text-white px-8 py-4 rounded-2xl text-sm font-bold hover:bg-[#c97b4b] transition-all shadow-[0_8px_20px_rgba(61,40,23,0.2)] hover:shadow-[0_8px_25px_rgba(201,123,75,0.4)] hover:-translate-y-1 transform duration-300 flex items-center gap-3 w-fit inline-flex"
-                >
-                  BUKA GOOGLE MAPS
-                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.5 }}
+          className="absolute z-20 top-64 md:top-1/2 right-4 md:right-24 max-w-[200px] md:max-w-[280px] text-white text-right flex flex-col items-end transform -translate-y-1/2"
+        >
+           <span className="text-6xl font-serif opacity-30 absolute -top-8 -right-4">"</span>
+           <p className="font-serif text-2xl md:text-3xl leading-tight">No fake smiles, just the best espresso in town.</p>
+           <div className="flex items-center gap-3 mt-4 flex-row-reverse">
+             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+                <img src={karyawan2} alt="User" className="w-full h-full object-cover" />
+             </div>
+             <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Michael R.</span>
+           </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.7 }}
+          className="absolute z-20 bottom-16 md:bottom-24 left-8 md:left-1/3 max-w-[200px] md:max-w-[280px] text-white"
+        >
+           <span className="text-6xl font-serif opacity-30 absolute -top-8 -left-6">"</span>
+           <p className="font-serif text-2xl md:text-3xl leading-tight">Tastes like insomnia in a good way.</p>
+           <div className="flex items-center gap-3 mt-4">
+             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white bg-white/20 flex justify-center items-center font-serif text-lg">
+                J
+             </div>
+             <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Jason K.</span>
+           </div>
+        </motion.div>
       </section>
 
-      {/* 8. CTA BANNER / HUBUNGI KAMI */}
-      <section className="relative h-[450px] md:h-[550px] flex items-center justify-center text-center mt-auto">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${suasanaImg})` }}></div>
-        <div className="absolute inset-0 bg-[#222923]/70 backdrop-blur-[2px]"></div>
+      {/* 7. FOOTER SECTION */}
+      <footer className="bg-[#F8F1E7] pt-24 pb-8 flex flex-col items-center justify-center relative overflow-hidden">
+        <motion.h2 
+          initial={{ opacity: 0, scale: 0.9, y: 30 }} whileInView={{ opacity: 1, scale: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }}
+          className="text-[#C04A25] text-6xl md:text-[14rem] leading-[0.8] font-serif font-black tracking-tighter text-center uppercase mb-16 px-4 z-10 w-full break-words"
+        >
+          AWAKEN <br/> YOUR SENSES
+        </motion.h2>
         
         <motion.div 
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-          className="relative z-10 px-6 max-w-3xl mx-auto"
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.5 }}
+          className="w-full max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center text-[#332218] text-xs font-bold tracking-[0.2em] uppercase border-t border-[#332218]/20 pt-10 mt-4 md:mt-12 gap-8 md:gap-0"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Siap Mengelola Jambang Space?
-          </h2>
-          <p className="text-[#d4cfc4] text-base md:text-lg mb-10 leading-relaxed font-medium">
-            Akses dasbor Jambang POS terintegrasi untuk mulai melayani pelanggan, memantau stok inventaris, dan memantau laporan operasional secara real-time.
-          </p>
+           <div className="flex flex-wrap justify-center gap-6 md:gap-12">
+             <a href="https://www.instagram.com/jambang_space" target="_blank" rel="noopener noreferrer" className="hover:text-[#C04A25] transition">Instagram</a>
+           </div>
+           
+           <div className="text-center opacity-60">
+             © 2026 JAMBANG SPACE. ALL RIGHTS RESERVED.
+           </div>
+           
+           <div className="flex flex-wrap justify-center gap-6 md:gap-12">
+             <a href="#" className="hover:text-[#C04A25] transition">Privacy Policy</a>
+             <a href="#" className="hover:text-[#C04A25] transition">Terms of Service</a>
+           </div>
         </motion.div>
-      </section>
+      </footer>
     </div>
   );
 };
 
-export default LandingPage;
+export default LandingPage;
