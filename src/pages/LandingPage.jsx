@@ -41,6 +41,7 @@ const slideRight = {
 
 const LandingPage = () => {
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -73,22 +74,48 @@ const LandingPage = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className={`fixed top-0 left-0 z-50 w-full flex items-center justify-between px-8 transition-all duration-300 text-white text-xs tracking-wider uppercase font-medium ${
-            isScrolled ? "py-4 bg-black/80 backdrop-blur-md border-b border-white/10 shadow-lg" : "py-6 bg-transparent"
+          className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 text-white text-xs tracking-wider uppercase font-medium ${
+            isScrolled ? "bg-black/90 backdrop-blur-md shadow-lg border-b border-white/10" : "bg-transparent"
           }`}
         >
-          <div className="flex-1 flex gap-8 hidden md:flex">
-            <a href="#about" className="hover:text-gray-300 transition">About</a>
-            <a href="#menu" className="hover:text-gray-300 transition">Menu</a>
-            <a href="#locations" className="hover:text-gray-300 transition">Locations</a>
-            <a href="#gallery" className="hover:text-gray-300 transition">Gallery</a>
+          <div className={`flex items-center justify-between w-full px-8 ${isScrolled ? "py-4" : "py-6"}`}>
+            <div className="flex-1 flex gap-8 hidden md:flex">
+              <a href="#about" className="hover:text-gray-300 transition">About</a>
+              <a href="#menu" className="hover:text-gray-300 transition">Menu</a>
+              <a href="#locations" className="hover:text-gray-300 transition">Locations</a>
+              <a href="#gallery" className="hover:text-gray-300 transition">Gallery</a>
+            </div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-center">
+              <img src={logo} alt="Jambang Logo" className={`w-auto brightness-0 invert opacity-90 hover:opacity-100 transition-all duration-300 ${isScrolled ? "h-8" : "h-10"}`} />
+            </div>
+            <div className="flex-1 flex justify-end gap-8 hidden md:flex">
+              <Link to="/login" className="hover:text-gray-300 transition font-bold">Login</Link>
+            </div>
+            
+            {/* Mobile Hamburger Icon */}
+            <div className="flex-1 flex justify-end md:hidden">
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white p-2 focus:outline-none">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   {isMenuOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                   ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                   )}
+                </svg>
+              </button>
+            </div>
           </div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex justify-center">
-            <img src={logo} alt="Jambang Logo" className={`w-auto brightness-0 invert opacity-90 hover:opacity-100 transition-all duration-300 ${isScrolled ? "h-8" : "h-10"}`} />
-          </div>
-          <div className="flex-1 flex justify-end gap-8 hidden md:flex">
-            <Link to="/login" className="hover:text-gray-300 transition font-bold">Login</Link>
-          </div>
+          
+          {/* Mobile Menu Dropdown */}
+          {isMenuOpen && (
+             <div className="md:hidden bg-black/95 backdrop-blur-xl absolute top-full left-0 w-full py-6 px-8 flex flex-col gap-6 border-b border-white/10">
+                <a href="#about" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition">About</a>
+                <a href="#menu" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition">Menu</a>
+                <a href="#locations" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition">Locations</a>
+                <a href="#gallery" onClick={() => setIsMenuOpen(false)} className="hover:text-gray-300 transition">Gallery</a>
+                <Link to="/login" className="hover:text-[#BA4A22] transition font-bold mt-4 pt-4 border-t border-white/10">Login</Link>
+             </div>
+          )}
         </motion.nav>
 
         {/* Hero Content */}
@@ -268,7 +295,7 @@ const LandingPage = () => {
               {/* Right: Collage */}
               <motion.div 
                 initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-                className="w-full md:w-1/2 relative h-[500px] md:h-[700px] flex justify-center items-center"
+                className="w-full md:w-1/2 relative h-[400px] md:h-[700px] flex justify-center items-center mt-12 md:mt-0"
               >
                  <motion.div 
                    whileHover={{ scale: 1.05, zIndex: 30 }} transition={{ duration: 0.4 }}
@@ -375,64 +402,88 @@ const LandingPage = () => {
       </section>
 
       {/* 6. TESTIMONIAL SECTION */}
-      <section className="py-24 md:py-40 bg-[#BA4A22] relative flex justify-center items-center overflow-hidden min-h-[700px] md:min-h-[900px]">
+      <section className="py-24 md:py-40 bg-[#BA4A22] relative flex justify-center items-center overflow-hidden min-h-auto md:min-h-[900px]">
+        {/* Mobile Quotes */}
+        <div className="flex md:hidden flex-col gap-12 w-full px-8 relative z-20">
+           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <span className="text-4xl font-serif opacity-30 absolute -translate-y-4 -translate-x-4 text-white">"</span>
+              <p className="font-serif text-2xl text-white leading-tight">I came for one cup, left with a week's worth of beans.</p>
+              <div className="flex items-center gap-3 mt-4 text-white">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src={karyawan1} alt="User" className="w-full h-full object-cover" /></div>
+                <span className="text-[10px] tracking-widest uppercase font-bold">Sarah T.</span>
+              </div>
+           </motion.div>
+           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <span className="text-4xl font-serif opacity-30 absolute -translate-y-4 -translate-x-4 text-white">"</span>
+              <p className="font-serif text-2xl text-white leading-tight">No fake smiles, just the best espresso in town.</p>
+              <div className="flex items-center gap-3 mt-4 text-white">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src={karyawan2} alt="User" className="w-full h-full object-cover" /></div>
+                <span className="text-[10px] tracking-widest uppercase font-bold">Michael R.</span>
+              </div>
+           </motion.div>
+           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <span className="text-4xl font-serif opacity-30 absolute -translate-y-4 -translate-x-4 text-white">"</span>
+              <p className="font-serif text-2xl text-white leading-tight">Tastes like insomnia in a good way.</p>
+              <div className="flex items-center gap-3 mt-4 text-white">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white bg-white/20 flex justify-center items-center font-serif text-lg">J</div>
+                <span className="text-[10px] tracking-widest uppercase font-bold">Jason K.</span>
+              </div>
+           </motion.div>
+        </div>
+
         {/* Center Portrait */}
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}
-          className="relative z-10 w-[280px] md:w-[400px] h-[350px] md:h-[500px] rounded-t-full overflow-hidden shadow-2xl border-b-0 border-4 border-[#BA4A22]/20 mt-16 md:mt-0"
+          className="relative z-10 w-full max-w-[280px] md:max-w-[400px] aspect-[4/5] md:h-[500px] rounded-t-full overflow-hidden shadow-2xl border-b-0 border-4 border-[#BA4A22]/20 mt-16 md:mt-0 hidden md:block"
         >
            <img src={ownerjambang} alt="Barista Portrait" className="w-full h-full object-cover" />
         </motion.div>
         
-        {/* Floating Quotes - Responsive Positioning */}
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }}
-          className="absolute z-20 top-16 md:top-32 left-4 md:left-24 max-w-[200px] md:max-w-[280px] text-white"
-        >
-           <span className="text-6xl font-serif opacity-30 absolute -top-8 -left-6">"</span>
-           <p className="font-serif text-2xl md:text-3xl leading-tight">I came for one cup, left with a week's worth of beans.</p>
-           <div className="flex items-center gap-3 mt-4">
-             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
-                <img src={karyawan1} alt="User" className="w-full h-full object-cover" />
-             </div>
-             <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Sarah T.</span>
-           </div>
-        </motion.div>
+        {/* Desktop Floating Quotes */}
+        <div className="hidden md:block">
+           <motion.div 
+             initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }}
+             className="absolute z-20 top-16 md:top-32 left-4 md:left-24 max-w-[200px] md:max-w-[280px] text-white"
+           >
+              <span className="text-6xl font-serif opacity-30 absolute -top-8 -left-6">"</span>
+              <p className="font-serif text-2xl md:text-3xl leading-tight">I came for one cup, left with a week's worth of beans.</p>
+              <div className="flex items-center gap-3 mt-4">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src={karyawan1} alt="User" className="w-full h-full object-cover" /></div>
+                <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Sarah T.</span>
+              </div>
+           </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.5 }}
-          className="absolute z-20 top-64 md:top-1/2 right-4 md:right-24 max-w-[200px] md:max-w-[280px] text-white text-right flex flex-col items-end transform -translate-y-1/2"
-        >
-           <span className="text-6xl font-serif opacity-30 absolute -top-8 -right-4">"</span>
-           <p className="font-serif text-2xl md:text-3xl leading-tight">No fake smiles, just the best espresso in town.</p>
-           <div className="flex items-center gap-3 mt-4 flex-row-reverse">
-             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
-                <img src={karyawan2} alt="User" className="w-full h-full object-cover" />
-             </div>
-             <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Michael R.</span>
-           </div>
-        </motion.div>
+           <motion.div 
+             initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.5 }}
+             className="absolute z-20 top-64 md:top-1/2 right-4 md:right-24 max-w-[200px] md:max-w-[280px] text-white text-right flex flex-col items-end transform -translate-y-1/2"
+           >
+              <span className="text-6xl font-serif opacity-30 absolute -top-8 -right-4">"</span>
+              <p className="font-serif text-2xl md:text-3xl leading-tight">No fake smiles, just the best espresso in town.</p>
+              <div className="flex items-center gap-3 mt-4 flex-row-reverse">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src={karyawan2} alt="User" className="w-full h-full object-cover" /></div>
+                <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Michael R.</span>
+              </div>
+           </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.7 }}
-          className="absolute z-20 bottom-16 md:bottom-24 left-8 md:left-1/3 max-w-[200px] md:max-w-[280px] text-white"
-        >
-           <span className="text-6xl font-serif opacity-30 absolute -top-8 -left-6">"</span>
-           <p className="font-serif text-2xl md:text-3xl leading-tight">Tastes like insomnia in a good way.</p>
-           <div className="flex items-center gap-3 mt-4">
-             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white bg-white/20 flex justify-center items-center font-serif text-lg">
-                J
-             </div>
-             <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Jason K.</span>
-           </div>
-        </motion.div>
+           <motion.div 
+             initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.7 }}
+             className="absolute z-20 bottom-16 md:bottom-24 left-8 md:left-1/3 max-w-[200px] md:max-w-[280px] text-white"
+           >
+              <span className="text-6xl font-serif opacity-30 absolute -top-8 -left-6">"</span>
+              <p className="font-serif text-2xl md:text-3xl leading-tight">Tastes like insomnia in a good way.</p>
+              <div className="flex items-center gap-3 mt-4">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white bg-white/20 flex justify-center items-center font-serif text-lg">J</div>
+                <span className="text-[10px] md:text-xs tracking-widest uppercase font-bold">Jason K.</span>
+              </div>
+           </motion.div>
+        </div>
       </section>
 
       {/* 7. FOOTER SECTION */}
       <footer className="bg-[#F8F1E7] pt-24 pb-8 flex flex-col items-center justify-center relative overflow-hidden">
         <motion.h2 
           initial={{ opacity: 0, scale: 0.9, y: 30 }} whileInView={{ opacity: 1, scale: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }}
-          className="text-[#C04A25] text-6xl md:text-[14rem] leading-[0.8] font-serif font-black tracking-tighter text-center uppercase mb-16 px-4 z-10 w-full break-words"
+          className="text-[#C04A25] text-5xl md:text-[14rem] leading-[0.8] font-serif font-black tracking-tighter text-center uppercase mb-16 px-4 z-10 w-full break-words"
         >
           AWAKEN <br/> YOUR SENSES
         </motion.h2>
