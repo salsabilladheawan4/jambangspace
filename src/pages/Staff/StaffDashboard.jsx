@@ -1,125 +1,122 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 export default function StaffDashboard({ staffName = "Safa (Shift Sore)", dataPenjualan = [], dataBelanja = [] }) {
-  const aktivitasKasir = dataPenjualan.filter(item => item.staff === staffName).slice(0, 5); // 5 Transaksi terakhir
+  const [filterTerbaru, setFilterTerbaru] = useState(true);
+  
+  const aktivitasKasir = filterTerbaru 
+    ? dataPenjualan.filter(item => item.staff === staffName).slice(0, 5)
+    : dataPenjualan.filter(item => item.staff === staffName);
+    
   const aktivitasBelanja = dataBelanja.filter(item => item.staff === staffName);
   const totalTransaksiSesi = dataPenjualan.filter(item => item.staff === staffName).reduce((acc, curr) => acc + curr.total, 0);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-  };
+  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+  const itemVariants = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } };
 
   return (
-    <motion.div 
-      initial="hidden" 
-      animate="show" 
-      variants={containerVariants} 
-      className="p-4 md:p-10 font-sans text-[#3d2817] bg-[#faf8f6] min-h-screen"
-    >
+    <motion.div initial="hidden" animate="show" variants={containerVariants} className="font-sans text-[#333]">
       
-      {/* HEADER BANNER PREMIUM */}
-      <motion.div variants={itemVariants} className="relative overflow-hidden bg-gradient-to-r from-[#3d2817] to-[#8b6f47] rounded-3xl mb-8 shadow-lg">
-        {/* Dekorasi Latar Belakang */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-20 w-40 h-40 bg-[#c97b4b] opacity-20 rounded-full blur-2xl pointer-events-none"></div>
+      {/* 1. HEADER & TOP KPI BAR */}
+      <motion.div variants={itemVariants} className="bg-white rounded-[2rem] p-6 shadow-sm border border-[#332218]/5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-6 mb-6">
         
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-8 md:p-10">
-          <div className="text-center md:text-left mb-6 md:mb-0">
-            <h2 className="text-sm md:text-base text-[#e8dfd4] font-medium tracking-wide mb-2 uppercase">Selamat Datang, Karyawan</h2>
-            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{staffName}</h1>
+        {/* Profile Info */}
+        <div className="flex-1 min-w-[200px] border-r border-gray-100 pr-6">
+          <div className="flex items-center justify-between mb-3">
+             <div className="flex items-center gap-2 text-[#332218] font-semibold text-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Staff Profile
+             </div>
+             <div className="flex items-center gap-1.5 bg-[#f0e5d8] px-3 py-1 rounded-full border border-[#332218]/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3ec066]"></span>
+                <span className="text-[9px] text-[#BA4A22] font-black uppercase tracking-widest">ONLINE</span>
+             </div>
           </div>
-          
-          <div className="flex items-center gap-6 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-4 rounded-2xl">
-            <div>
-              <p className="text-xs text-[#e8dfd4] uppercase tracking-widest font-bold mb-1">Status Shift</p>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]"></span>
-                <span className="text-white font-medium text-sm">Sedang Bertugas</span>
-              </div>
-            </div>
-            <div className="w-px h-10 bg-white/20"></div>
-            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl shadow-inner">
-               ☕
-            </div>
+          <div className="flex items-end gap-2">
+             <span className="text-[22px] font-extrabold text-[#1a110c] tracking-tight truncate capitalize">{staffName}</span>
           </div>
         </div>
+
+        {/* Pendapatan Sesi */}
+        <div className="flex-1 min-w-[150px] border-r border-gray-100 px-2 lg:px-6">
+          <div className="flex items-center gap-2 text-gray-500 font-semibold text-sm mb-4">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>
+             Sesi Kasir
+          </div>
+          <div className="flex items-end gap-1">
+             <span className="text-[22px] font-extrabold text-[#332218]">Rp {totalTransaksiSesi.toLocaleString('id-ID')}</span>
+          </div>
+        </div>
+
+        {/* Aktivitas Belanja */}
+        <div className="flex-1 min-w-[120px] px-2 lg:pl-6">
+          <div className="flex items-center gap-2 text-gray-500 font-semibold text-sm mb-4">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+             Gudang
+          </div>
+          <div className="flex items-end gap-2">
+             <span className="text-[22px] font-extrabold text-[#1a110c]">{aktivitasBelanja.length}</span>
+             <span className="text-xs font-semibold text-gray-400 mb-1">Transaksi</span>
+          </div>
+        </div>
+
       </motion.div>
 
-      {/* GRID KARTU STATISTIK KASIR & GUDANG */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <motion.div variants={itemVariants} className="bg-white border border-gray-100 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-lg transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-green-50 rounded-full opacity-50 transform group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
-          <div className="flex items-center gap-4 mb-4 relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-xl shadow-sm">
-              💵
+      {/* 2. RECENT TRANSACTIONS TABLE */}
+      <motion.div variants={itemVariants} className="bg-white rounded-[2rem] p-8 shadow-sm border border-[#332218]/5 overflow-x-auto">
+         <div className="flex justify-between items-center mb-6 min-w-[700px]">
+            <div className="flex items-center gap-2 font-bold text-lg text-[#1a110c]">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#332218" strokeWidth="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+               Riwayat Kasir Terakhir
             </div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pendapatan Sesi Anda</p>
-          </div>
-          <h3 className="text-4xl font-black text-gray-800 relative z-10">Rp {totalTransaksiSesi.toLocaleString('id-ID')}</h3>
-        </motion.div>
-        
-        <motion.div variants={itemVariants} className="bg-white border border-gray-100 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-lg transition-shadow relative overflow-hidden group">
-          <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-orange-50 rounded-full opacity-50 transform group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
-          <div className="flex items-center gap-4 mb-4 relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-[#fff4ed] text-[#c97b4b] flex items-center justify-center text-xl shadow-sm">
-              📦
+            <div className="flex items-center gap-1 bg-[#f8f9f7] p-1.5 rounded-full border border-gray-100 text-xs font-bold text-gray-500">
+               <span className="p-1.5 px-3 cursor-pointer hover:text-[#332218]" title="Muat Ulang (Refresh)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+               </span>
+               <span onClick={() => setFilterTerbaru(false)} className={`py-1.5 px-5 cursor-pointer rounded-full transition-colors ${!filterTerbaru ? 'bg-white shadow-sm border border-gray-100 text-[#1a110c]' : 'hover:text-[#1a110c]'}`}>Semua</span>
+               <span onClick={() => setFilterTerbaru(true)} className={`py-1.5 px-5 cursor-pointer rounded-full transition-colors ${filterTerbaru ? 'bg-white shadow-sm border border-gray-100 text-[#1a110c]' : 'hover:text-[#1a110c]'}`}>5 Terbaru</span>
             </div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Aktivitas Pengadaan (Gudang)</p>
-          </div>
-          <h3 className="text-4xl font-black text-gray-800 relative z-10">
-            {aktivitasBelanja.length} <span className="text-xl text-gray-400 font-medium ml-1">Transaksi</span>
-          </h3>
-        </motion.div>
-      </div>
+         </div>
 
-      {/* TABEL TRANSAKSI TERAKHIR (Mengisi Ruang Kosong) */}
-      <motion.div variants={itemVariants} className="bg-white border border-gray-100 p-2 md:p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
-        <div className="p-4 md:px-6 mb-2 flex justify-between items-center">
-            <h3 className="text-lg font-bold text-gray-800">Riwayat Penjualan Terakhir Anda</h3>
-            <span className="text-xs font-bold bg-[#faf6f1] text-[#c97b4b] px-3 py-1 rounded-full border border-[#e8dfd4]">5 Terbaru</span>
-        </div>
-        
-        <div className="overflow-x-auto">
-            <table className="min-w-full text-left border-collapse">
-                <thead className="bg-white">
-                    <tr className="text-gray-400 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100">
-                        <th className="pb-3 pt-2 px-6">Waktu</th>
-                        <th className="pb-3 pt-2 px-6">Detail Pesanan</th>
-                        <th className="pb-3 pt-2 px-6 text-right">Total Transaksi</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                    {aktivitasKasir.length === 0 ? (
-                        <tr>
-                            <td colSpan="3" className="px-6 py-12 text-center text-gray-400 font-medium">
-                                Belum ada transaksi kasir pada sesi ini.
-                            </td>
-                        </tr>
-                    ) : (
-                        aktivitasKasir.map((trx, idx) => (
-                            <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                                <td className="py-4 px-6 text-sm text-gray-500 font-medium whitespace-nowrap">
-                                    {trx.tanggal} <span className="mx-2 text-gray-300">|</span> {trx.jam}
-                                </td>
-                                <td className="py-4 px-6 text-sm text-gray-800">
-                                    {trx.namaMenu}
-                                </td>
-                                <td className="py-4 px-6 text-sm text-right font-bold text-green-600 whitespace-nowrap">
-                                    Rp {trx.total.toLocaleString('id-ID')}
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
+         <table className="w-full text-left min-w-[700px] border-collapse">
+            <thead>
+               <tr className="text-[11px] font-semibold text-gray-400 border-b border-gray-100/50">
+                  <th className="pb-4 pl-4">Waktu</th>
+                  <th className="pb-4">Detail Pesanan</th>
+                  <th className="pb-4">Status</th>
+                  <th className="pb-4 text-right pr-10">Total Transaksi</th>
+               </tr>
+            </thead>
+            <tbody className="text-sm font-semibold text-gray-700">
+               {aktivitasKasir.length === 0 ? (
+                  <tr>
+                     <td colSpan="6" className="py-12 text-center text-gray-400 font-medium">
+                        Belum ada transaksi pada sesi ini.
+                     </td>
+                  </tr>
+               ) : (
+                  aktivitasKasir.map((trx, idx) => (
+                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-5 pl-4 text-[#869990] text-[13px] font-medium">
+                           {trx.tanggal.substring(0, 9)} <span className="mx-0.5 text-gray-300">•</span> {trx.jam.replace('.', ':')}
+                        </td>
+                        <td className="py-5 font-bold text-[#1a110c] text-[13px]">
+                           {trx.namaMenu}
+                        </td>
+                        <td className="py-5">
+                           <span className="bg-[#f0e5d8] text-[#BA4A22] px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-[#332218]/10">BERHASIL</span>
+                        </td>
+                        <td className="py-5 text-right font-bold text-[#332218] text-[13px]">
+                           <div className="flex justify-end items-center gap-6">
+                              Rp {trx.total.toLocaleString('id-ID')}
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-300 cursor-pointer hover:text-gray-800"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                           </div>
+                        </td>
+                     </tr>
+                  ))
+               )}
+            </tbody>
+         </table>
       </motion.div>
       
     </motion.div>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import ProfileDropdown from '../components/ProfileDropdown';
+import TopNavbar from '../components/TopNavbar';
 
 export default function MainLayout({ userRole, userName }) {
   const location = useLocation();
@@ -15,15 +14,12 @@ export default function MainLayout({ userRole, userName }) {
   if (location.pathname.includes('/resep')) activeMenu = 'Resep';
 
   return (
-    <div className="flex h-screen bg-[#faf8f6] font-sans">
-      <Sidebar activeItem={activeMenu} userRole={userRole || 'staff'} userName={userName} />
+    <div className="flex flex-col h-screen bg-[#F8F1E7] font-sans overflow-hidden">
+      <TopNavbar activeItem={activeMenu} userRole={userRole || 'staff'} userName={userName} />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-
-        <main className="flex-1 overflow-y-auto">
-          <Outlet />
-        </main>
-      </div>
+      <main className="flex-1 overflow-y-auto px-6 pb-6 relative z-0">
+        <Outlet />
+      </main>
     </div>
   );
 }

@@ -139,7 +139,12 @@ function App() {
 
         {/* Rute Otentikasi (Hanya bisa diakses kalau BELUM login) */}
         <Route element={token ? <Navigate to="/dashboard" replace /> : <AuthLayout />}>
-          <Route path="/login" element={<Login onLoginSuccess={(t, r, n) => { setToken(t); setUserRole(r); setUserName(n); }} />} />
+          <Route path="/login" element={<Login onLoginSuccess={(t, r, n) => { 
+             setToken(t); setUserRole(r); setUserName(n);
+             localStorage.setItem('token', t);
+             localStorage.setItem('role', r);
+             localStorage.setItem('name', n);
+          }} />} />
           
           {/* BARU: Rute untuk Register dan Lupa Password yang sudah didaftarkan */}
           <Route path="/register" element={<Register />} />

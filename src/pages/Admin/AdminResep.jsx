@@ -1,93 +1,164 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../../Services/supabaseClient';
+import PageHeader from '../../components/PageHeader';
 
-export default function AdminResep({ tabelMenu = [], tabelBahanBaku = [], tabelResep = [] }) {
+export default function AdminResep({ userRole }) {
+  const breadcrumb = ["Dashboard", "Manajemen Resep"];
   
-  const getNamaBahan = (idBahan) => {
-    const bahan = tabelBahanBaku.find(b => b.idBahan === idBahan);
-    return bahan ? `${bahan.namaBahan} (${bahan.satuan})` : 'Bahan tidak ditemukan';
+  const [menus, setMenus] = useState([]);
+  const [inventory, setInventory] = useState([]);
+  const [recipes, setRecipes] = useState([]);
+  
+  const [selectedMenu, setSelectedMenu] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Form State
+  const [selectedBahan, setSelectedBahan] = useState('');
+  const [takaran, setTakaran] = useState('');
+
+  const fetchData = async () => {
+    const { data: menuData } = await supabase.from('menus').select('*').order('id', { ascending: true });
+    if (menuData) setMenus(menuData);
+
+    const { data: invData } = await supabase.from('inventory').select('*');
+    if (invData) setInventory(invData);
+
+    const { data: recData } = await supabase.from('recipes').select('*');
+    if (recData) setRecipes(recData);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const getBahanDetails = (invId) => {
+    return inventory.find(i => String(i.id) === String(invId)) || { item_name: 'Unknown', unit: '' };
+  };
+
+  const getNamaBahan = (invItem) => {
+    if (!invItem) return 'Unknown';
+    return invItem.item_name || invItem.name || invItem.barang || 'Unknown';
+  };
+
+  const handleOpenModal = (menu) => {
+    setSelectedMenu(menu);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMenu(null);
+    setSelectedBahan('');
+    setTakaran('');
+  };
+
+  const handleAddRecipe = async (e) => {
+    e.preventDefault();
+    if (!selectedBahan || !takaran) return alert("Pilih bahan dan masukkan takaran!");
+    
+    setIsSaving(true);
+    const existing = recipes.find(r => r.menu_id === selectedMenu.id && r.inventory_id === parseInt(selectedBahan));
+    
+    if (existing) {
+        // Update
+        const { error } = await supabase.from('recipes').update({ amount: parseInt(takaran) }).eq('id', existing.id);
+        if (error) alert("Error: " + error.message);
+    } else {
+        // Insert
+        const { error } = await supabase.from('recipes').insert([{ 
+            menu_id: selectedMenu.id, 
+            inventory_id: parseInt(selectedBahan), 
+            amount: parseInt(takaran) 
+        }]);
+        if (error) alert("Error: " + error.message);
+    }
+    
+    setSelectedBahan('');
+    setTakaran('');
+    await fetchData();
+    setIsSaving(false);
+  };
+
+  const handleDeleteRecipe = async (id) => {
+    if (window.confirm("Hapus bahan ini dari resep?")) {
+        const { error } = await supabase.from('recipes').delete().eq('id', id);
+        if (!error) fetchData();
+    }
   };
 
   const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemAnim = { hidden: { opacity: 0, scale: 0.95, y: 20 }, show: { opacity: 1, scale: 1, y: 0 } };
 
   return (
-    <div className="p-4 md:p-10 font-instrument text-[#3d2817] bg-[#faf8f6] min-h-screen">
+    <motion.div initial="hidden" animate="show" variants={container} className="p-4 md:p-10 font-sans text-gray-800 bg-[#F8F1E7] min-h-screen">
       
-      {/* HEADER */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        className="bg-white border border-[#e8dfd4] p-8 rounded-[32px] mb-10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] flex flex-col md:flex-row items-center gap-8 relative overflow-hidden"
-      >
-        <div className="absolute right-[-5%] top-[-20%] w-64 h-64 bg-[#c97b4b] opacity-[0.04] rounded-full blur-3xl"></div>
-        <img 
-          src="https://image.qwenlm.ai/public_source/ececd3b0-d800-4b49-91b0-3934b124bc94/1524d5cd3-2963-478a-9e4f-c6622adc321f.png" 
-          alt="Recipe Management" 
-          className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border-4 border-[#faf6f1] shadow-lg"
-        />
-        <div className="text-center md:text-left z-10">
-          <h2 className="text-3xl md:text-4xl font-black text-[#3d2817]">
-            Manajemen Resep & BOM
-          </h2>
-          <p className="text-sm text-[#6b5344] mt-3 max-w-xl leading-relaxed">
-            Atur komposisi (Bill of Materials) untuk setiap menu. Sistem akan otomatis memotong stok di Gudang Kasir sesuai takaran presisi yang Anda tentukan di sini.
-          </p>
-        </div>
-      </motion.div>
+      <PageHeader 
+          title="Resep & BOM" 
+          breadcrumb={breadcrumb} 
+          searchQuery={searchQuery}
+          onSearch={setSearchQuery}
+      />
 
-      {/* DAFTAR RESEP PER MENU */}
-      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {tabelMenu.map((menu) => {
-          const resepMenuIni = tabelResep.filter(resep => resep.idMenu === menu.id);
+      <motion.div variants={container} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+        {menus
+          .filter(menu => menu.title.toLowerCase().includes(searchQuery.toLowerCase()) || menu.category.toLowerCase().includes(searchQuery.toLowerCase()))
+          .map((menu) => {
+          const resepMenu = recipes.filter(r => r.menu_id === menu.id);
 
           return (
-            <motion.div key={menu.id} variants={itemAnim} className="bg-white border border-transparent hover:border-[#f0eade] rounded-[32px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_40px_rgb(201,123,75,0.08)] transition-all duration-500 group flex flex-col">
+            <motion.div key={menu.id} variants={itemAnim} className="bg-white rounded-[2rem] border border-[#332218]/5 shadow-sm hover:shadow-xl hover:border-[#332218]/20 transition-all duration-300 flex flex-col group overflow-hidden">
               
-              {/* Card Header */}
-              <div className="bg-[#faf8f6] group-hover:bg-[#faf6f1] relative flex flex-col p-6 border-b border-[#e8dfd4] transition-colors duration-500">
-                <div className="absolute top-6 right-6 bg-white text-[#c97b4b] px-3 py-1.5 rounded-xl text-[10px] font-black shadow-sm z-10 border border-[#f0eade]">
-                  ID: {menu.id}
-                </div>
-                <div className="w-10 h-10 rounded-full bg-white text-xl flex items-center justify-center shadow-sm mb-4 border border-[#e8dfd4]">
-                  {menu.category.toLowerCase().includes('coffee') || menu.category.toLowerCase().includes('kopi') ? '☕' : menu.category.toLowerCase().includes('snack') || menu.category.toLowerCase().includes('dessert') ? '🥐' : '🍛'}
-                </div>
-                <div className="relative z-10 w-full">
-                  <p className="text-[9px] font-black text-[#8b6f47] uppercase tracking-widest mb-1">{menu.category}</p>
-                  <h3 className="text-xl font-black text-[#3d2817] leading-tight pr-12">{menu.title}</h3>
+              <div className="bg-gray-50/50 p-6 flex items-start justify-between border-b border-gray-100">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white text-xl flex items-center justify-center shadow-sm border border-gray-100 text-[#332218]">
+                    {menu.category.toLowerCase().includes('coffee') ? '☕' : menu.category.toLowerCase().includes('snack') ? '🥐' : '🍛'}
+                  </div>
+                  <div>
+                    <span className="bg-[#f0e5d8] text-[#BA4A22] px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-[#332218]/10 mb-2 inline-block">
+                        {menu.category}
+                    </span>
+                    <h3 className="text-lg font-black text-[#1a110c] leading-tight">{menu.title}</h3>
+                  </div>
                 </div>
               </div>
 
-              {/* Card Body (Tabel Resep) */}
-              <div className="p-6 flex-1 flex flex-col justify-between bg-white relative">
+              <div className="p-6 flex-1 flex flex-col justify-between bg-white">
                 <div>
-                  <h4 className="text-[10px] font-black text-[#8b6f47] uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span className="w-4 h-[2px] bg-[#8b6f47] inline-block"></span> Komposisi Bahan
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span className="w-4 h-1 rounded-full bg-gray-200 inline-block"></span> Komposisi Bahan
                   </h4>
-                  {resepMenuIni.length > 0 ? (
+                  {resepMenu.length > 0 ? (
                     <ul className="space-y-3">
-                      {resepMenuIni.map((resep, idx) => (
-                        <li key={idx} className="flex justify-between items-center border-b border-[#faf6f1] pb-3 last:border-0 last:pb-0">
-                          <span className="text-xs font-bold text-[#6b5344] capitalize">
-                            {getNamaBahan(resep.idBahan).split('(')[0]} 
-                            <span className="text-[10px] text-gray-400 font-normal">({getNamaBahan(resep.idBahan).split('(')[1]}</span>
-                          </span>
-                          <span className="text-sm font-black text-[#3d2817] bg-[#faf6f1] px-2 py-1 rounded-md">
-                            {resep.takaran}
-                          </span>
-                        </li>
-                      ))}
+                      {resepMenu.map((resep) => {
+                        const bahan = getBahanDetails(resep.inventory_id);
+                        return (
+                            <li key={resep.id} className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                                <span className="text-[13px] font-bold text-gray-700">
+                                    {getNamaBahan(bahan)} <span className="text-[10px] text-gray-400 font-semibold ml-1">({bahan.unit || bahan.satuan})</span>
+                                </span>
+                                <span className="text-[13px] font-black text-[#332218] bg-[#f0e5d8] px-3 py-1 rounded-lg border border-[#332218]/10">
+                                    {resep.amount}
+                                </span>
+                            </li>
+                        );
+                      })}
                     </ul>
                   ) : (
-                    <div className="text-center py-6 bg-[#faf8f6] rounded-xl border border-dashed border-gray-300">
-                      <span className="text-2xl opacity-50 mb-2 block">📝</span>
-                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Resep Kosong</p>
+                    <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                      <span className="text-2xl mb-2 block opacity-40">📝</span>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Belum Ada Resep</p>
                     </div>
                   )}
                 </div>
                 
-                {/* Tombol Tambah/Edit */}
-                <button className="w-full mt-6 py-4 bg-[#faf8f6] text-[#8b6f47] rounded-xl text-xs font-black uppercase tracking-widest group-hover:bg-[#c97b4b] group-hover:text-white transition-all shadow-sm group-hover:shadow-lg">
-                  Sesuaikan Resep
+                <button onClick={() => handleOpenModal(menu)} className="w-full mt-6 py-4 bg-gray-50 text-[#332218] rounded-xl text-[11px] font-black uppercase tracking-widest group-hover:bg-[#332218] group-hover:text-white transition-all shadow-sm group-hover:shadow-md border border-gray-100 group-hover:border-transparent">
+                  <span className="flex items-center justify-center gap-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                      Atur Komposisi
+                  </span>
                 </button>
               </div>
             </motion.div>
@@ -95,6 +166,90 @@ export default function AdminResep({ tabelMenu = [], tabelBahanBaku = [], tabelR
         })}
       </motion.div>
 
-    </div>
+      {/* Modal Atur Resep */}
+      <AnimatePresence>
+        {isModalOpen && selectedMenu && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                onClick={handleCloseModal}
+            ></motion.div>
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
+            >
+                <div className="p-6 md:p-8 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h2 className="text-xl font-black text-[#1a110c] mb-1">Resep: {selectedMenu.title}</h2>
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Komposisi Bahan</p>
+                    </div>
+                    <button onClick={handleCloseModal} className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 shadow-sm border border-gray-100 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                
+                <div className="p-6 md:p-8 overflow-y-auto">
+                    {/* Daftar Resep Saat Ini */}
+                    <div className="mb-8">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Komposisi Tersimpan</h4>
+                        <div className="space-y-3">
+                            {recipes.filter(r => r.menu_id === selectedMenu.id).length === 0 && (
+                                <p className="text-xs text-gray-400 italic">Belum ada bahan yang ditambahkan.</p>
+                            )}
+                            {recipes.filter(r => r.menu_id === selectedMenu.id).map(r => {
+                                const b = getBahanDetails(r.inventory_id);
+                                return (
+                                    <div key={r.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-800">{getNamaBahan(b)}</p>
+                                            <p className="text-[10px] font-semibold text-gray-500 mt-0.5">Takaran: <span className="text-[#332218] font-bold">{r.amount} {b.unit || b.satuan}</span></p>
+                                        </div>
+                                        <button onClick={() => handleDeleteRecipe(r.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Form Tambah Bahan */}
+                    <div className="bg-[#f8fcf9] p-6 rounded-2xl border border-[#332218]/10">
+                        <h4 className="text-[10px] font-black text-[#332218] uppercase tracking-widest mb-4">Tambah / Ubah Takaran Bahan</h4>
+                        <form onSubmit={handleAddRecipe} className="flex flex-col gap-4">
+                            <select 
+                                required
+                                value={selectedBahan} onChange={e => setSelectedBahan(e.target.value)}
+                                className="w-full p-4 bg-white rounded-xl border border-gray-200 text-sm font-bold text-gray-700 focus:outline-none focus:border-[#332218] appearance-none"
+                            >
+                                <option value="" disabled>Pilih Bahan Baku dari Gudang...</option>
+                                {inventory.map(inv => (
+                                    <option key={inv.id} value={inv.id}>{getNamaBahan(inv)} ({inv.unit || inv.satuan})</option>
+                                ))}
+                            </select>
+                            
+                            <div className="flex gap-4">
+                                <input 
+                                    required type="number" min="1"
+                                    value={takaran} onChange={e => setTakaran(e.target.value)}
+                                    placeholder="Masukkan Jumlah Takaran"
+                                    className="flex-1 p-4 bg-white rounded-xl border border-gray-200 text-sm font-bold text-gray-700 focus:outline-none focus:border-[#332218]"
+                                />
+                                <button type="submit" disabled={isSaving} className="px-8 bg-[#332218] text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#221610] shadow-lg shadow-[#332218]/20 transition-all flex items-center justify-center">
+                                    {isSaving ? 'Menyimpan...' : 'Simpan'}
+                                </button>
+                            </div>
+                            {selectedBahan && (
+                                <p className="text-[10px] text-gray-500 font-semibold mt-1">*Jika bahan sudah ada di resep, takarannya akan di-update (ditimpa).</p>
+                            )}
+                        </form>
+                    </div>
+                </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
