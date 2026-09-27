@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../Services/supabaseClient';
 import PageHeader from '../../components/PageHeader';
 
+import { createPortal } from 'react-dom';
+
 export default function AdminResep({ userRole }) {
   const breadcrumb = ["Dashboard", "Manajemen Resep"];
   
@@ -167,89 +169,92 @@ export default function AdminResep({ userRole }) {
       </motion.div>
 
       {/* Modal Atur Resep */}
-      <AnimatePresence>
-        {isModalOpen && selectedMenu && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-            <motion.div 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={handleCloseModal}
-            ></motion.div>
-            <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
-            >
-                <div className="p-6 md:p-8 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                    <div>
-                        <h2 className="text-xl font-black text-[#1a110c] mb-1">Resep: {selectedMenu.title}</h2>
-                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Komposisi Bahan</p>
-                    </div>
-                    <button onClick={handleCloseModal} className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 shadow-sm border border-gray-100 transition-colors">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
-                
-                <div className="p-6 md:p-8 overflow-y-auto">
-                    {/* Daftar Resep Saat Ini */}
-                    <div className="mb-8">
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Komposisi Tersimpan</h4>
-                        <div className="space-y-3">
-                            {recipes.filter(r => r.menu_id === selectedMenu.id).length === 0 && (
-                                <p className="text-xs text-gray-400 italic">Belum ada bahan yang ditambahkan.</p>
-                            )}
-                            {recipes.filter(r => r.menu_id === selectedMenu.id).map(r => {
-                                const b = getBahanDetails(r.inventory_id);
-                                return (
-                                    <div key={r.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-800">{getNamaBahan(b)}</p>
-                                            <p className="text-[10px] font-semibold text-gray-500 mt-0.5">Takaran: <span className="text-[#332218] font-bold">{r.amount} {b.unit || b.satuan}</span></p>
-                                        </div>
-                                        <button onClick={() => handleDeleteRecipe(r.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Form Tambah Bahan */}
-                    <div className="bg-[#f8fcf9] p-6 rounded-2xl border border-[#332218]/10">
-                        <h4 className="text-[10px] font-black text-[#332218] uppercase tracking-widest mb-4">Tambah / Ubah Takaran Bahan</h4>
-                        <form onSubmit={handleAddRecipe} className="flex flex-col gap-4">
-                            <select 
-                                required
-                                value={selectedBahan} onChange={e => setSelectedBahan(e.target.value)}
-                                className="w-full p-4 bg-white rounded-xl border border-gray-200 text-sm font-bold text-gray-700 focus:outline-none focus:border-[#332218] appearance-none"
-                            >
-                                <option value="" disabled>Pilih Bahan Baku dari Gudang...</option>
-                                {inventory.map(inv => (
-                                    <option key={inv.id} value={inv.id}>{getNamaBahan(inv)} ({inv.unit || inv.satuan})</option>
-                                ))}
-                            </select>
-                            
-                            <div className="flex gap-4">
-                                <input 
-                                    required type="number" min="1"
-                                    value={takaran} onChange={e => setTakaran(e.target.value)}
-                                    placeholder="Masukkan Jumlah Takaran"
-                                    className="flex-1 p-4 bg-white rounded-xl border border-gray-200 text-sm font-bold text-gray-700 focus:outline-none focus:border-[#332218]"
-                                />
-                                <button type="submit" disabled={isSaving} className="px-8 bg-[#332218] text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#221610] shadow-lg shadow-[#332218]/20 transition-all flex items-center justify-center">
-                                    {isSaving ? 'Menyimpan...' : 'Simpan'}
-                                </button>
-                            </div>
-                            {selectedBahan && (
-                                <p className="text-[10px] text-gray-500 font-semibold mt-1">*Jika bahan sudah ada di resep, takarannya akan di-update (ditimpa).</p>
-                            )}
-                        </form>
-                    </div>
-                </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {isModalOpen && selectedMenu && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div 
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                  onClick={handleCloseModal}
+              ></motion.div>
+              <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
+              >
+                  <div className="p-6 md:p-8 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                      <div>
+                          <h2 className="text-xl font-black text-[#1a110c] mb-1">Resep: {selectedMenu.title}</h2>
+                          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Manajemen Komposisi Bahan</p>
+                      </div>
+                      <button onClick={handleCloseModal} className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 shadow-sm border border-gray-100 transition-colors">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
+                  </div>
+                  
+                  <div className="p-6 md:p-8 overflow-y-auto">
+                      {/* Daftar Resep Saat Ini */}
+                      <div className="mb-8">
+                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Komposisi Tersimpan</h4>
+                          <div className="space-y-3">
+                              {recipes.filter(r => r.menu_id === selectedMenu.id).length === 0 && (
+                                  <p className="text-xs text-gray-400 italic">Belum ada bahan yang ditambahkan.</p>
+                              )}
+                              {recipes.filter(r => r.menu_id === selectedMenu.id).map(r => {
+                                  const b = getBahanDetails(r.inventory_id);
+                                  return (
+                                      <div key={r.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                          <div>
+                                              <p className="text-sm font-bold text-gray-800">{getNamaBahan(b)}</p>
+                                              <p className="text-[10px] font-semibold text-gray-500 mt-0.5">Takaran: <span className="text-[#332218] font-bold">{r.amount} {b.unit || b.satuan}</span></p>
+                                          </div>
+                                          <button onClick={() => handleDeleteRecipe(r.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                          </button>
+                                      </div>
+                                  );
+                              })}
+                          </div>
+                      </div>
+  
+                      {/* Form Tambah Bahan */}
+                      <div className="bg-[#f8fcf9] p-6 rounded-2xl border border-[#332218]/10">
+                          <h4 className="text-[10px] font-black text-[#332218] uppercase tracking-widest mb-4">Tambah / Ubah Takaran Bahan</h4>
+                          <form onSubmit={handleAddRecipe} className="flex flex-col gap-4">
+                              <select 
+                                  required
+                                  value={selectedBahan} onChange={e => setSelectedBahan(e.target.value)}
+                                  className="w-full p-4 bg-white rounded-xl border border-gray-200 text-sm font-bold text-gray-700 focus:outline-none focus:border-[#332218] appearance-none"
+                              >
+                                  <option value="" disabled>Pilih Bahan Baku dari Gudang...</option>
+                                  {inventory.map(inv => (
+                                      <option key={inv.id} value={inv.id}>{getNamaBahan(inv)} ({inv.unit || inv.satuan})</option>
+                                  ))}
+                              </select>
+                              
+                              <div className="flex gap-4">
+                                  <input 
+                                      required type="number" min="1"
+                                      value={takaran} onChange={e => setTakaran(e.target.value)}
+                                      placeholder="Masukkan Jumlah Takaran"
+                                      className="flex-1 p-4 bg-white rounded-xl border border-gray-200 text-sm font-bold text-gray-700 focus:outline-none focus:border-[#332218]"
+                                  />
+                                  <button type="submit" disabled={isSaving} className="px-8 bg-[#332218] text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#221610] shadow-lg shadow-[#332218]/20 transition-all flex items-center justify-center">
+                                      {isSaving ? 'Menyimpan...' : 'Simpan'}
+                                  </button>
+                              </div>
+                              {selectedBahan && (
+                                  <p className="text-[10px] text-gray-500 font-semibold mt-1">*Jika bahan sudah ada di resep, takarannya akan di-update (ditimpa).</p>
+                              )}
+                          </form>
+                      </div>
+                  </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </motion.div>
   );
 }

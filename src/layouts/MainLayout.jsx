@@ -17,7 +17,7 @@ export default function MainLayout({ userRole, userName }) {
     <div className="flex flex-col h-screen bg-[#F8F1E7] font-sans overflow-hidden">
       <TopNavbar activeItem={activeMenu} userRole={userRole || 'staff'} userName={userName} />
 
-      <main className="flex-1 overflow-y-auto px-6 pb-6 relative z-0">
+      <main className="flex-1 overflow-y-auto px-6 pb-6 relative">
         <Outlet />
       </main>
     </div>

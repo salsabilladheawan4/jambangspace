@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import PageHeader from "../../components/PageHeader";
 import { supabase, supabaseSecondary } from '../../Services/supabaseClient';
 import Swal from 'sweetalert2';
@@ -192,7 +193,7 @@ export default function AdminStaff({ userRole }) {
             </div>
 
             {/* Modal Tambah Staff Premium */}
-            {showModal && (
+            {showModal && createPortal(
                 <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-md transition-all">
                     <div className="bg-white rounded-[2rem] w-full max-w-[480px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 relative border border-white/50">
                         
@@ -318,7 +319,8 @@ export default function AdminStaff({ userRole }) {
                             </form>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
